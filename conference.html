@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LCK Experience Digital - Conferencias en Vivo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/conference.css">
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+</head>
+<body>
+    <div class="conference-container">
+        <header class="conference-header">
+            <div class="header-content">
+                <div class="logo">
+                    <h1>LCK Experience</h1>
+                    <span class="digital-badge">DIGITAL</span>
+                </div>
+                <div class="user-info">
+                    <span id="userEmail"></span>
+                    <button class="logout-btn" onclick="logout()">Salir</button>
+                </div>
+            </div>
+        </header>
+
+        <main class="conference-main">
+            <div class="video-section">
+                <div class="video-container">
+                    <div id="videoPlayer" class="video-player">
+                        <video
+                            id="conferenceStream"
+                            controls
+                            controlsList="nodownload"
+                            style="width: 100%; height: 100%; object-fit: contain;">
+                            Tu navegador no soporta el elemento de video.
+                        </video>
+                        <div class="video-placeholder" id="videoPlaceholder">
+                            <div class="placeholder-content">
+                                <h2>Próximamente</h2>
+                                <p>Las conferencias comenzarán el 26 de Septiembre 2025</p>
+                                <div class="countdown" id="countdown"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="video-controls">
+                        <div class="live-indicator">
+                            <span class="live-dot"></span>
+                            <span>EN VIVO</span>
+                        </div>
+                        <div class="language-selector">
+                            <button class="lang-btn active" data-lang="es">Español</button>
+                            <button class="lang-btn" data-lang="en">English</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar">
+                    <div class="tabs">
+                        <button class="tab-btn active" data-tab="schedule">Agenda</button>
+                        <button class="tab-btn" data-tab="chat">Chat</button>
+                        <button class="tab-btn" data-tab="resources">Recursos</button>
+                    </div>
+
+                    <div class="tab-content">
+                        <div id="scheduleTab" class="tab-panel active">
+                            <div class="schedule-days">
+                                <button class="day-btn active" data-day="1">Día 1</button>
+                                <button class="day-btn" data-day="2">Día 2</button>
+                            </div>
+                            <div class="schedule-list" id="scheduleList">
+                                <!-- Schedule items will be loaded here -->
+                            </div>
+                        </div>
+
+                        <div id="chatTab" class="tab-panel">
+                            <div class="chat-container">
+                                <div class="chat-messages" id="chatMessages">
+                                    <div class="chat-welcome">
+                                        <p>¡Bienvenido al chat en vivo!</p>
+                                        <p>Comparte tus ideas y preguntas con otros participantes.</p>
+                                    </div>
+                                </div>
+                                <form class="chat-input-form" id="chatForm">
+                                    <input
+                                        type="text"
+                                        id="chatInput"
+                                        placeholder="Escribe un mensaje..."
+                                        maxlength="200"
+                                    >
+                                    <button type="submit">Enviar</button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div id="resourcesTab" class="tab-panel">
+                            <div class="resources-list">
+                                <div class="resource-item">
+                                    <div class="resource-icon">📄</div>
+                                    <div class="resource-info">
+                                        <h4>Guía del Participante</h4>
+                                        <p>Todo lo que necesitas saber</p>
+                                    </div>
+                                    <button class="download-btn">Descargar</button>
+                                </div>
+                                <div class="resource-item">
+                                    <div class="resource-icon">📚</div>
+                                    <div class="resource-info">
+                                        <h4>Presentaciones</h4>
+                                        <p>Slides de los ponentes</p>
+                                    </div>
+                                    <button class="download-btn">Próximamente</button>
+                                </div>
+                                <div class="resource-item">
+                                    <div class="resource-icon">🎯</div>
+                                    <div class="resource-info">
+                                        <h4>Ejercicios Prácticos</h4>
+                                        <p>Actividades y worksheets</p>
+                                    </div>
+                                    <button class="download-btn">Próximamente</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <div class="current-session">
+                    <h3 id="currentTitle">Preparándose para el evento...</h3>
+                    <p id="currentSpeaker">LCK Experience Team</p>
+                    <div class="session-meta">
+                        <span id="currentTime">--:--</span>
+                        <span class="separator">•</span>
+                        <span id="viewerCount">0 espectadores</span>
+                    </div>
+                </div>
+
+                <div class="upcoming-sessions">
+                    <h4>Próximas Sesiones</h4>
+                    <div class="upcoming-list" id="upcomingList">
+                        <!-- Upcoming sessions will be loaded here -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/firebase-config.js"></script>
+    <script src="js/conference.js"></script>
+</body>
+</html>

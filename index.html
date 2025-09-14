@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LCK Experience Digital - Conferencias Online</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <h1>LCK Experience</h1>
+                <span class="digital-badge">DIGITAL</span>
+            </div>
+        </header>
+
+        <main>
+            <section class="hero">
+                <h2 class="hero-title">Accede a las Conferencias Digitales</h2>
+                <p class="hero-subtitle">26-27 de Septiembre 2025</p>
+                <p class="hero-description">
+                    Transforma tu vida con las mentes más brillantes del desarrollo humano y bienestar.
+                    Acceso completo a todas las conferencias digitales del evento.
+                </p>
+            </section>
+
+            <section class="access-section" id="accessForm">
+                <div class="access-card">
+                    <h3>Obtén Acceso Inmediato</h3>
+
+                    <div class="access-options">
+                        <button class="option-tab active" data-option="coupon">
+                            Tengo un Código
+                        </button>
+                        <button class="option-tab" data-option="payment">
+                            Comprar Acceso
+                        </button>
+                    </div>
+
+                    <form id="couponForm" class="access-form active">
+                        <div class="form-group">
+                            <label for="couponEmail">Correo Electrónico</label>
+                            <input type="email" id="couponEmail" required placeholder="tu@email.com">
+                        </div>
+                        <div class="form-group">
+                            <label for="couponCode">Código de Acceso</label>
+                            <input type="text" id="couponCode" required placeholder="XXXXXX">
+                        </div>
+                        <button type="submit" class="submit-btn">Validar Código</button>
+                    </form>
+
+                    <form id="paymentForm" class="access-form">
+                        <div class="price-display">
+                            <span class="price">$1,499 MXN</span>
+                            <span class="price-note">Acceso completo a todas las conferencias grabadas</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="paymentEmail">Correo Electrónico</label>
+                            <input type="email" id="paymentEmail" required placeholder="tu@email.com">
+                            <small style="color: var(--text-light); font-size: 0.85em;">Recibirás tu código de acceso en este correo después del pago</small>
+                        </div>
+                        <button type="submit" class="submit-btn" id="payButton">
+                            <span class="button-text">Continuar con Pago Seguro</span>
+                        </button>
+                        <div class="payment-methods">
+                            <small>Aceptamos:</small>
+                            <div class="payment-icons">
+                                <span>💳 Tarjetas</span>
+                                <span>🏦 Transfer</span>
+                                <span>💵 OXXO</span>
+                            </div>
+                        </div>
+                    </form>
+
+                    <div class="security-note">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                        </svg>
+                        <span>Pago seguro procesado por Stripe</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="features">
+                <h3>¿Qué incluye tu acceso digital?</h3>
+                <div class="features-grid">
+                    <div class="feature-item">
+                        <div class="feature-icon">🎯</div>
+                        <h4>Conferencias Completas</h4>
+                        <p>Acceso a todas las conferencias del evento</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">🌍</div>
+                        <h4>Traducción Simultánea</h4>
+                        <p>Disponible en español e inglés</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">📱</div>
+                        <h4>Multi-dispositivo</h4>
+                        <p>Ve desde cualquier dispositivo</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">♾️</div>
+                        <h4>Acceso Ilimitado</h4>
+                        <p>Durante los días del evento</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2025 LCK Experience. Todos los derechos reservados.</p>
+        </footer>
+    </div>
+
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <div class="success-icon">✓</div>
+            <h3>¡Acceso Confirmado!</h3>
+            <p>Te hemos enviado un correo con los detalles de acceso.</p>
+            <button class="modal-btn" onclick="window.location.href='conference.html'">
+                Ir a las Conferencias
+            </button>
+        </div>
+    </div>
+
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="loading-spinner"></div>
+    </div>
+
+    <script src="js/firebase-config.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

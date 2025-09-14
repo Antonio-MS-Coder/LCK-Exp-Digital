@@ -1,0 +1,17 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /conferences/{video} {
+      // Allow everyone to read conference videos
+      allow read: if true;
+      // Only allow uploads from Firebase Console
+      allow write: if false;
+    }
+    match /resources/{document} {
+      // Allow everyone to read resources
+      allow read: if true;
+      // Only allow uploads from Firebase Console
+      allow write: if false;
+    }
+  }
+}
