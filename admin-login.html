@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login - LCK Experience Digital</title>
+
+    <!-- Content Security Policy for Firebase -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com https://apis.google.com https://www.googletagmanager.com https://www.google-analytics.com; script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com https://apis.google.com https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://*.firebaseio.com https://*.firebase.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseapp.com wss://*.firebaseio.com https://www.googleapis.com https://www.gstatic.com; frame-src 'self' https://accounts.google.com https://*.firebaseapp.com https://lck-experience.firebaseapp.com;">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary-black) 0%, #333 100%);
+        }
+
+        .login-container {
+            background: var(--white);
+            padding: 40px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .login-header h1 {
+            color: var(--primary-black);
+            margin-bottom: 10px;
+        }
+
+        .login-header p {
+            color: var(--gray-medium);
+        }
+
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            color: var(--gray-medium);
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .back-link a {
+            color: var(--accent-gold);
+            text-decoration: none;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>Panel de Administración</h1>
+            <p>Ingresa con tu cuenta de administrador</p>
+        </div>
+
+        <form id="adminLoginForm" onsubmit="handleAdminLogin(event)">
+            <div class="form-group">
+                <label for="email">Correo Electrónico</label>
+                <input type="email" id="email" required
+                       placeholder="admin@lckexperience.com.mx">
+            </div>
+
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" required
+                       placeholder="Tu contraseña">
+            </div>
+
+            <div id="loginError" class="alert alert-error d-none">
+                <i class="fas fa-exclamation-circle"></i>
+                <span id="loginErrorText"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                <span id="loginBtnText">Iniciar Sesión</span>
+                <span id="loginLoader" class="loading d-none"></span>
+            </button>
+        </form>
+
+        <div class="divider">— o —</div>
+
+        <button class="btn btn-secondary" onclick="signInWithGoogle()" style="width: 100%;">
+            <i class="fab fa-google"></i> Continuar con Google
+        </button>
+
+        <div class="back-link">
+            <a href="/">← Volver al sitio principal</a>
+        </div>
+    </div>
+
+    <!-- Initialize Super Admin Button (hidden, only for first setup) -->
+    <div id="initSuperAdmin" style="display: none; position: fixed; bottom: 20px; right: 20px;">
+        <button class="btn btn-gold" onclick="initializeSuperAdmin()">
+            Inicializar Super Admin
+        </button>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+    <script src="js/auth-persistent.js"></script>
+    <script src="js/admin-auth.js"></script>
+    <script src="js/admin-multi-session.js"></script>
+
+    <script>
+        // Wait for all scripts to load
+        window.addEventListener('load', async () => {
+            console.log('Admin login page loaded');
+
+            // Debug: Check what's available
+            console.log('AdminMultiSession available:', !!window.AdminMultiSession);
+            console.log('Firebase auth available:', !!(firebase && firebase.auth));
+
+            // Use multi-session if available, otherwise fallback
+            if (window.AdminMultiSession) {
+                console.log('Using AdminMultiSession system');
+
+                // Check existing session first
+                const hasSession = await window.AdminMultiSession.checkExistingAdminSession();
+                console.log('Existing session check result:', hasSession);
+
+                // If no redirect happened, setup handlers
+                if (!hasSession) {
+                    // Override form submission with multi-session handler
+                    const form = document.getElementById('adminLoginForm');
+                    if (form) {
+                        form.onsubmit = window.AdminMultiSession.handleAdminLogin;
+                        console.log('Form handler attached');
+                    }
+
+                    // Override Google sign-in with multi-session handler
+                    window.signInWithGoogle = window.AdminMultiSession.signInWithGoogle;
+                    console.log('Google sign-in handler attached');
+                }
+            } else {
+                console.error('AdminMultiSession not loaded - using fallback');
+                // Fallback to basic auth
+                setupFallbackAuth();
+            }
+        });
+
+        // Fallback authentication if multi-session fails
+        function setupFallbackAuth() {
+            const auth = firebase.auth();
+            const database = firebase.database();
+
+            // Check if already logged in
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    console.log('User found in fallback:', user.email);
+                    // Check if admin
+                    const emailKey = user.email.replace(/\./g, '_');
+                    const adminRef = database.ref(`admins/${emailKey}`);
+                    const snapshot = await adminRef.once('value');
+                    const adminData = snapshot.val();
+
+                    if (adminData && adminData.active) {
+                        console.log('Admin verified, redirecting from fallback...');
+                        window.location.href = '/admin.html';
+                    }
+                }
+            });
+        }
+
+        // Initialize super admin (run once for setup)
+        async function initializeSuperAdmin() {
+            const email = prompt('Ingresa el email del super administrador:');
+            if (!email) return;
+
+            try {
+                const database = firebase.database();
+                const adminRef = database.ref(`admins/${email.replace(/\./g, '_')}`);
+                await adminRef.set({
+                    email: email,
+                    role: 'super_admin',
+                    active: true,
+                    addedAt: Date.now(),
+                    addedBy: 'system_init'
+                });
+
+                alert('Super admin inicializado. Ahora puedes iniciar sesión.');
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error al inicializar super admin');
+            }
+        }
+
+        // Show init button with keyboard shortcut (Ctrl+Shift+I)
+        document.addEventListener('keydown', (e) => {
+            if (e.ctrlKey && e.shiftKey && e.key === 'I') {
+                document.getElementById('initSuperAdmin').style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>

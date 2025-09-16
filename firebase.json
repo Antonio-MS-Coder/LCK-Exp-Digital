@@ -8,8 +8,10 @@
       "server/**",
       "README.md",
       "VIDEO_HOSTING_GUIDE.md",
+      "SETUP_GUIDE.md",
       "package.json",
-      "package-lock.json"
+      "package-lock.json",
+      "database.rules.json"
     ],
     "rewrites": [
       {
@@ -18,7 +20,14 @@
       }
     ]
   },
+  "database": {
+    "rules": "database.rules.json"
+  },
   "storage": {
     "rules": "storage.rules"
+  },
+  "functions": {
+    "source": "functions",
+    "runtime": "nodejs18"
   }
 }

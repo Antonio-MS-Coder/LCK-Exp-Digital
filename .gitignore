@@ -23,9 +23,10 @@ firestore.rules
 firestore.indexes.json
 
 # API Keys and sensitive data
-**/firebase-config.js
+# Note: firebase-config.js is public (contains only public keys)
 **/api-keys.js
 **/credentials.json
+**/private-keys.json
 
 # Server files (not needed for Firebase hosting)
 server/

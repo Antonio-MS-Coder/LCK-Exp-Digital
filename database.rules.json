@@ -1,0 +1,104 @@
+{
+  "rules": {
+    "users": {
+      "$email": {
+        ".read": true,
+        ".write": true,
+        "accessGranted": {
+          ".validate": "newData.isBoolean()"
+        },
+        "role": {
+          ".validate": "newData.val() === 'admin' || newData.val() === 'super_admin' || newData.val() === 'user'"
+        }
+      }
+    },
+    "admins": {
+      ".read": true,
+      "$email": {
+        ".write": true
+      }
+    },
+    "conferences": {
+      ".read": true,
+      "$conferenceId": {
+        ".write": "auth != null && (root.child('admins').child(auth.token.email.replace('.', '_')).exists() || root.child('users').child(auth.token.email.replace('.', '_')).child('role').val() === 'admin' || root.child('users').child(auth.token.email.replace('.', '_')).child('role').val() === 'super_admin')",
+        "views": {
+          ".write": "auth != null"
+        }
+      }
+    },
+    "coupons": {
+      ".read": true,
+      "$couponCode": {
+        ".write": true,
+        "active": {
+          ".validate": "newData.isBoolean()"
+        },
+        "maxUses": {
+          ".validate": "newData.isNumber()"
+        },
+        "usedCount": {
+          ".validate": "newData.isNumber()"
+        }
+      }
+    },
+    "userProgress": {
+      "$userId": {
+        ".read": "auth != null && auth.uid === $userId",
+        ".write": "auth != null && auth.uid === $userId",
+        "conferences": {
+          "$conferenceId": {
+            "watched": {
+              ".validate": "newData.isBoolean()"
+            },
+            "currentTime": {
+              ".validate": "newData.isNumber()"
+            },
+            "lastWatched": {
+              ".validate": "newData.isNumber()"
+            },
+            "completed": {
+              ".validate": "newData.isBoolean()"
+            }
+          }
+        },
+        "lastWatchedId": {
+          ".validate": "newData.isString()"
+        },
+        "lastActivity": {
+          ".validate": "newData.isNumber()"
+        }
+      }
+    },
+    "activeSessions": {
+      "$userId": {
+        ".read": "auth != null && auth.uid === $userId",
+        ".write": "auth != null && auth.uid === $userId",
+        "lastActivity": {
+          ".validate": "newData.isNumber()"
+        },
+        "email": {
+          ".validate": "newData.isString()"
+        }
+      }
+    },
+    "userActivity": {
+      "$userId": {
+        ".read": "auth != null && (auth.uid === $userId || root.child('admins').child(auth.token.email.replace('.', '_')).exists())",
+        ".write": "auth != null && auth.uid === $userId"
+      }
+    },
+    "adminSessions": {
+      "$userId": {
+        ".read": "auth != null",
+        ".write": "auth != null && auth.uid === $userId",
+        "lastActivity": {
+          ".validate": "newData.isNumber()"
+        },
+        "email": {
+          ".validate": "newData.isString()"
+        }
+      }
+    }
+  }
+}

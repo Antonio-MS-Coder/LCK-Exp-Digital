@@ -3,141 +3,371 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LCK Experience Digital - Conferencias Online</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+    <title>LCK Experience Digital - Acceso a Conferencias</title>
+
+    <!-- Content Security Policy for Firebase and Stripe -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' https:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com https://apis.google.com https://www.googletagmanager.com https://www.google-analytics.com https://js.stripe.com; script-src-elem 'self' 'unsafe-inline' 'unsafe-eval' https://www.gstatic.com https://apis.google.com https://www.googletagmanager.com https://www.google-analytics.com https://js.stripe.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://*.firebaseio.com https://*.firebase.googleapis.com https://identitytoolkit.googleapis.com https://securetoken.googleapis.com https://*.firebaseapp.com wss://*.firebaseio.com https://www.googleapis.com https://api.stripe.com https://www.gstatic.com; frame-src 'self' https://accounts.google.com https://*.firebaseapp.com https://lck-experience.firebaseapp.com https://js.stripe.com https://hooks.stripe.com;">
+
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Accede a las conferencias de LCK Experience Digital. Contenido exclusivo para transformar tu vida personal y profesional.">
+    <meta name="keywords" content="LCK Experience, conferencias, desarrollo personal, transformación, crecimiento">
+    <meta name="author" content="LCK Experience">
+
+    <!-- Open Graph -->
+    <meta property="og:title" content="LCK Experience Digital - Conferencias">
+    <meta property="og:description" content="Accede a contenido exclusivo de LCK Experience">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://digital.lckexperience.com.mx">
+
+    <!-- Styles -->
     <link rel="stylesheet" href="css/styles.css">
 
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <div class="logo">
-                <h1>LCK Experience</h1>
-                <span class="digital-badge">DIGITAL</span>
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="nav-container">
+                <a href="/" class="logo">LCK Experience Digital</a>
+                <div id="userInfo" class="d-none">
+                    <span id="userEmail"></span>
+                    <button class="btn btn-sm" onclick="signOut()">Cerrar Sesión</button>
+                </div>
             </div>
-        </header>
+        </div>
+    </header>
 
-        <main>
-            <section class="hero">
-                <h2 class="hero-title">Accede a las Conferencias Digitales</h2>
-                <p class="hero-subtitle">26-27 de Septiembre 2025</p>
-                <p class="hero-description">
-                    Transforma tu vida con las mentes más brillantes del desarrollo humano y bienestar.
-                    Acceso completo a todas las conferencias digitales del evento.
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Accede a las Conferencias de LCK Experience</h1>
+                <p class="subtitle">
+                    Contenido exclusivo del evento que está transformando vidas
                 </p>
-            </section>
 
-            <section class="access-section" id="accessForm">
-                <div class="access-card">
-                    <h3>Obtén Acceso Inmediato</h3>
-
-                    <div class="access-options">
-                        <button class="option-tab active" data-option="coupon">
-                            Tengo un Código
-                        </button>
-                        <button class="option-tab" data-option="payment">
-                            Comprar Acceso
-                        </button>
+                <!-- Value Proposition -->
+                <div class="value-props">
+                    <div class="value-item">
+                        <i class="fas fa-video value-icon"></i>
+                        <span>Conferencias completas</span>
                     </div>
+                    <div class="value-item">
+                        <i class="fas fa-infinity value-icon"></i>
+                        <span>Acceso ilimitado</span>
+                    </div>
+                    <div class="value-item">
+                        <i class="fas fa-mobile value-icon"></i>
+                        <span>Desde cualquier dispositivo</span>
+                    </div>
+                </div>
 
-                    <form id="couponForm" class="access-form active">
-                        <div class="form-group">
-                            <label for="couponEmail">Correo Electrónico</label>
-                            <input type="email" id="couponEmail" required placeholder="tu@email.com">
-                        </div>
-                        <div class="form-group">
-                            <label for="couponCode">Código de Acceso</label>
-                            <input type="text" id="couponCode" required placeholder="XXXXXX">
-                        </div>
-                        <button type="submit" class="submit-btn">Validar Código</button>
-                    </form>
-
-                    <form id="paymentForm" class="access-form">
-                        <div class="price-display">
-                            <span class="price">$1,499 MXN</span>
-                            <span class="price-note">Acceso completo a todas las conferencias grabadas</span>
-                        </div>
-                        <div class="form-group">
-                            <label for="paymentEmail">Correo Electrónico</label>
-                            <input type="email" id="paymentEmail" required placeholder="tu@email.com">
-                            <small style="color: var(--text-light); font-size: 0.85em;">Recibirás tu código de acceso en este correo después del pago</small>
-                        </div>
-                        <button type="submit" class="submit-btn" id="payButton">
-                            <span class="button-text">Continuar con Pago Seguro</span>
-                        </button>
-                        <div class="payment-methods">
-                            <small>Aceptamos:</small>
-                            <div class="payment-icons">
-                                <span>💳 Tarjetas</span>
-                                <span>🏦 Transfer</span>
-                                <span>💵 OXXO</span>
+                <!-- Auth Check Section -->
+                <div id="authSection">
+                    <!-- For non-authenticated users -->
+                    <div id="nonAuthContent" class="action-cards">
+                        <div class="card" style="max-width: 500px; margin: 0 auto;">
+                            <div class="card-icon">
+                                <i class="fas fa-user-circle"></i>
                             </div>
+                            <h3>Comienza Aquí</h3>
+                            <p class="text-muted">Crea tu cuenta o inicia sesión para acceder al contenido</p>
+
+                            <button class="btn btn-primary" onclick="showAuthModal('register')" style="margin: 10px;">
+                                Crear Cuenta
+                            </button>
+                            <button class="btn btn-secondary" onclick="showAuthModal('login')" style="margin: 10px;">
+                                Ya Tengo Cuenta
+                            </button>
                         </div>
-                    </form>
+                    </div>
 
-                    <div class="security-note">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                        </svg>
-                        <span>Pago seguro procesado por Stripe</span>
+                    <!-- For authenticated users without access -->
+                    <div id="authNoAccessContent" class="action-cards d-none">
+                        <div class="card">
+                            <div class="card-icon">
+                                <i class="fas fa-credit-card"></i>
+                            </div>
+                            <h3>Comprar Acceso</h3>
+                            <p class="text-muted">Obtén acceso completo a todas las conferencias</p>
+                            <div class="price-display">
+                                <p style="font-size: 28px; font-weight: 700; color: var(--primary-black); margin: 10px 0;">$500 MXN</p>
+                            </div>
+                            <button class="btn btn-primary" onclick="proceedToPayment()">
+                                Comprar Ahora
+                            </button>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-icon">
+                                <i class="fas fa-ticket"></i>
+                            </div>
+                            <h3>Tengo un Cupón</h3>
+                            <p class="text-muted">Ingresa tu código de cupón para acceder</p>
+                            <div style="margin: 20px 0;">
+                                <p style="font-size: 14px; color: var(--gray-medium);">¿Recibiste un código especial?</p>
+                            </div>
+                            <button class="btn btn-secondary" onclick="showCouponModal()">
+                                Usar Cupón
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- For authenticated users with access -->
+                    <div id="authWithAccessContent" class="d-none" style="text-align: center;">
+                        <div class="card" style="max-width: 500px; margin: 0 auto;">
+                            <div class="card-icon">
+                                <i class="fas fa-check-circle" style="color: var(--success);"></i>
+                            </div>
+                            <h3>¡Ya Tienes Acceso!</h3>
+                            <p class="text-muted">Disfruta de todas las conferencias de LCK Experience</p>
+                            <button class="btn btn-gold" onclick="goToConferences()">
+                                <i class="fas fa-play"></i> Ver Conferencias
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </section>
+            </div>
+        </div>
+    </section>
 
-            <section class="features">
-                <h3>¿Qué incluye tu acceso digital?</h3>
-                <div class="features-grid">
-                    <div class="feature-item">
-                        <div class="feature-icon">🎯</div>
-                        <h4>Conferencias Completas</h4>
-                        <p>Acceso a todas las conferencias del evento</p>
+    <!-- Features Section -->
+    <section class="features section-padding">
+        <div class="container">
+            <h2 class="text-center">¿Qué incluye tu acceso?</h2>
+            <div class="feature-grid">
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-play-circle"></i>
                     </div>
-                    <div class="feature-item">
-                        <div class="feature-icon">🌍</div>
-                        <h4>Traducción Simultánea</h4>
-                        <p>Disponible en español e inglés</p>
+                    <h3>Conferencias Completas</h3>
+                    <p>Todas las ponencias del evento LCK Experience</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-clock"></i>
                     </div>
-                    <div class="feature-item">
-                        <div class="feature-icon">📱</div>
-                        <h4>Multi-dispositivo</h4>
-                        <p>Ve desde cualquier dispositivo</p>
+                    <h3>Ve a tu Ritmo</h3>
+                    <p>Pausa, repite y aprende cuando quieras</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-users"></i>
                     </div>
-                    <div class="feature-item">
-                        <div class="feature-icon">♾️</div>
-                        <h4>Acceso Ilimitado</h4>
-                        <p>Durante los días del evento</p>
+                    <h3>Comunidad LCK</h3>
+                    <p>Únete a miles de personas transformando sus vidas</p>
+                </div>
+                <div class="feature-item">
+                    <div class="feature-icon">
+                        <i class="fas fa-certificate"></i>
+                    </div>
+                    <h3>Contenido de Calidad</h3>
+                    <p>Speakers internacionales y contenido verificado</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq section-padding bg-light">
+        <div class="container">
+            <h2 class="text-center">Preguntas Frecuentes</h2>
+            <div style="max-width: 800px; margin: 0 auto; margin-top: 40px;">
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>¿Cómo funciona el acceso?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Primero creas tu cuenta gratuita, luego puedes comprar acceso o usar un cupón.
+                        Una vez activado, puedes ver las conferencias todas las veces que quieras.
                     </div>
                 </div>
-            </section>
-        </main>
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>¿Por cuánto tiempo tengo acceso?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Tu acceso es ilimitado. Una vez que obtienes acceso, puedes ver las conferencias
+                        todas las veces que quieras.
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>¿Necesito crear una cuenta?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Sí, necesitas crear una cuenta gratuita para poder acceder al contenido.
+                        Esto nos permite guardar tu progreso y garantizar tu acceso desde cualquier dispositivo.
+                    </div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <span>¿Qué métodos de pago aceptan?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Aceptamos todas las tarjetas de crédito y débito principales a través de
+                        nuestra plataforma segura de pagos Stripe.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-        <footer>
+    <!-- Footer -->
+    <footer>
+        <div class="container">
             <p>&copy; 2025 LCK Experience. Todos los derechos reservados.</p>
-        </footer>
-    </div>
+            <p class="mb-0">Transformando vidas, un evento a la vez.</p>
+        </div>
+    </footer>
 
-    <div id="successModal" class="modal">
+    <!-- Auth Modal (Login/Register) -->
+    <div id="authModal" class="modal">
         <div class="modal-content">
-            <div class="success-icon">✓</div>
-            <h3>¡Acceso Confirmado!</h3>
-            <p>Te hemos enviado un correo con los detalles de acceso.</p>
-            <button class="modal-btn" onclick="window.location.href='conference.html'">
-                Ir a las Conferencias
-            </button>
+            <button class="modal-close" onclick="closeModal('authModal')">&times;</button>
+
+            <!-- Tab Headers -->
+            <div class="auth-tabs" style="display: flex; margin-bottom: 20px; border-bottom: 2px solid var(--gray-light);">
+                <button id="loginTab" class="auth-tab active" onclick="switchAuthTab('login')"
+                        style="flex: 1; padding: 10px; background: none; border: none; cursor: pointer; font-weight: 600;">
+                    Iniciar Sesión
+                </button>
+                <button id="registerTab" class="auth-tab" onclick="switchAuthTab('register')"
+                        style="flex: 1; padding: 10px; background: none; border: none; cursor: pointer; font-weight: 600;">
+                    Crear Cuenta
+                </button>
+            </div>
+
+            <!-- Login Form -->
+            <div id="loginForm" class="auth-form">
+                <form onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label for="loginEmail">Correo Electrónico</label>
+                        <input type="email" id="loginEmail" required placeholder="tu@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Contraseña</label>
+                        <input type="password" id="loginPassword" required placeholder="Tu contraseña">
+                    </div>
+                    <p style="margin: 10px 0; font-size: 14px;">
+                        <a href="#" onclick="handleForgotPassword(event)" style="color: var(--accent-gold); text-decoration: none;">
+                            ¿Olvidaste tu contraseña?
+                        </a>
+                    </p>
+                    <div id="loginError" class="alert alert-error d-none">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span id="loginErrorText"></span>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        <span id="loginBtnText">Iniciar Sesión</span>
+                        <span id="loginLoader" class="loading d-none"></span>
+                    </button>
+                </form>
+
+                <div style="text-align: center; margin: 20px 0;">
+                    <p style="color: var(--gray-medium); margin: 10px 0;">— o —</p>
+                    <button type="button" class="btn btn-secondary" onclick="signInWithGoogle()" style="width: 100%;">
+                        <i class="fab fa-google"></i> Continuar con Google
+                    </button>
+                </div>
+            </div>
+
+            <!-- Register Form -->
+            <div id="registerForm" class="auth-form d-none">
+                <form onsubmit="handleRegister(event)">
+                    <div class="form-group">
+                        <label for="registerName">Nombre Completo</label>
+                        <input type="text" id="registerName" required placeholder="Juan Pérez">
+                    </div>
+                    <div class="form-group">
+                        <label for="registerEmail">Correo Electrónico</label>
+                        <input type="email" id="registerEmail" required placeholder="tu@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="registerPassword">Contraseña</label>
+                        <input type="password" id="registerPassword" required placeholder="Mínimo 6 caracteres">
+                        <small style="color: var(--gray-medium);">La contraseña debe tener al menos 6 caracteres</small>
+                    </div>
+                    <div id="registerError" class="alert alert-error d-none">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span id="registerErrorText"></span>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        <span id="registerBtnText">Crear Cuenta</span>
+                        <span id="registerLoader" class="loading d-none"></span>
+                    </button>
+                </form>
+
+                <div style="text-align: center; margin: 20px 0;">
+                    <p style="color: var(--gray-medium); margin: 10px 0;">— o —</p>
+                    <button type="button" class="btn btn-secondary" onclick="signInWithGoogle()" style="width: 100%;">
+                        <i class="fab fa-google"></i> Continuar con Google
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <div id="loadingOverlay" class="loading-overlay hidden">
-        <div class="loading-spinner"></div>
+    <!-- Coupon Modal (for authenticated users) -->
+    <div id="couponModal" class="modal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal('couponModal')">&times;</button>
+            <h2>Usar Código de Cupón</h2>
+            <p class="text-muted">Ingresa tu código especial para obtener acceso</p>
+
+            <form onsubmit="handleCoupon(event)">
+                <div class="form-group">
+                    <label for="couponCode">Código de Cupón</label>
+                    <input type="text" id="couponCode" required
+                           placeholder="Ej: LCK2025" style="text-transform: uppercase;">
+                </div>
+
+                <div id="couponError" class="alert alert-error d-none">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <span id="couponErrorText"></span>
+                </div>
+
+                <div id="couponSuccess" class="alert alert-success d-none">
+                    <i class="fas fa-check-circle"></i>
+                    <span id="couponSuccessText"></span>
+                </div>
+
+                <button type="submit" class="btn btn-gold" style="width: 100%;">
+                    <span id="couponBtnText">Validar Cupón</span>
+                    <span id="couponLoader" class="loading d-none"></span>
+                </button>
+            </form>
+        </div>
     </div>
 
+    <!-- Scripts -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://js.stripe.com/v3/"></script>
     <script src="js/firebase-config.js"></script>
-    <script src="js/main.js"></script>
+    <script src="js/auth-persistent.js"></script>
+    <script src="js/stripe-integration.js"></script>
+    <script src="js/auth-flow-v2.js"></script>
+
+    <script>
+        // Define Stripe payment link
+        const STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/bJeaEY82neOU30Pd1Kg3602';
+
+        // FAQ Toggle
+        function toggleFaq(element) {
+            const parent = element.parentElement;
+            parent.classList.toggle('active');
+            const icon = element.querySelector('i');
+            icon.classList.toggle('fa-chevron-down');
+            icon.classList.toggle('fa-chevron-up');
+        }
+    </script>
 </body>
 </html>
