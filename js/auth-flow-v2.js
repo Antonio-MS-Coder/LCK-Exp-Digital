@@ -17,71 +17,67 @@ if (!window.authFlowInitialized) {
 
         // Check auth state on page load
         auth.onAuthStateChanged(async (user) => {
-    currentUser = user;
+            currentUser = user;
 
-    if (user) {
-        console.log('User authenticated:', user.email);
+            if (user) {
+                console.log('User authenticated:', user.email);
 
-        // Check if we're on index page
-        const isIndexPage = window.location.pathname === '/' ||
-                          window.location.pathname === '/index.html' ||
-                          window.location.pathname.endsWith('/index.html') ||
-                          window.location.pathname === '/index';
+                // Update UI to show user info
+                const userInfo = document.getElementById('userInfo');
+                const userEmail = document.getElementById('userEmail');
+                if (userInfo) userInfo.classList.remove('d-none');
+                if (userEmail) userEmail.textContent = user.email;
 
-        // Only show user info and check access on index page
-        if (isIndexPage) {
-            // Update UI to show user info
-            const userInfo = document.getElementById('userInfo');
-            const userEmail = document.getElementById('userEmail');
-            if (userInfo) userInfo.classList.remove('d-none');
-            if (userEmail) userEmail.textContent = user.email;
+                // Check if user has access
+                console.log('Starting access check for user:', user.email);
+                try {
+                    const hasAccess = await checkUserAccess(user.email);
+                    console.log('Access check completed. Has access:', hasAccess, 'Status:', userAccessStatus);
 
-            // Clear any redirect flag to prevent loops
-            sessionStorage.removeItem('redirecting');
+                    // Check if we're on index page for redirect logic
+                    const isIndexPage = window.location.pathname === '/' ||
+                                      window.location.pathname === '/index.html' ||
+                                      window.location.pathname.endsWith('/index.html') ||
+                                      window.location.pathname === '/index';
 
-            // Check if user has access and wait for result
-            console.log('Starting access check for user:', user.email);
-            try {
-                const hasAccess = await checkUserAccess(user.email);
-                console.log('Access check completed. Has access:', hasAccess, 'Status:', userAccessStatus);
-
-                // Only redirect if user HAS access (not if they don't)
-                if (hasAccess) {
-                    // Only redirect if not already redirecting (prevent loops)
-                    if (!sessionStorage.getItem('redirecting')) {
-                        console.log('User has access, redirecting to conferences...');
-                        sessionStorage.setItem('redirecting', 'true');
-                        window.location.href = '/conferences.html';
-                        return;
+                    // Only redirect from index page if user has access
+                    if (hasAccess && isIndexPage) {
+                        // Only redirect if not already redirecting (prevent loops)
+                        if (!sessionStorage.getItem('redirecting')) {
+                            console.log('User has access, redirecting to conferences...');
+                            sessionStorage.setItem('redirecting', 'true');
+                            window.location.href = '/conferences.html';
+                            return;
+                        }
+                    } else if (!hasAccess) {
+                        // User is authenticated but has NO access - show payment/coupon options
+                        console.log('User authenticated but no access - showing payment options');
+                        // Clear redirect flag
+                        sessionStorage.removeItem('redirecting');
                     }
-                } else {
-                    // User is authenticated but has NO access - show payment/coupon options
-                    console.log('User authenticated but no access - showing payment options');
+
+                    // Always update content based on access status (not just on index)
+                    updateContentForAuthenticatedUser();
+                } catch (error) {
+                    console.error('Error during access check:', error);
+                    // On error, show payment options (safe fallback)
+                    userAccessStatus = 'none';
+                    updateContentForAuthenticatedUser();
                 }
 
-                // Update content based on access status (after access check completes)
-                updateContentForAuthenticatedUser();
-            } catch (error) {
-                console.error('Error during access check:', error);
-                // On error, show payment options (safe fallback)
-                userAccessStatus = 'error';
-                updateContentForAuthenticatedUser();
+            } else {
+                console.log('No user authenticated');
+
+                // Hide user info safely
+                const userInfo = document.getElementById('userInfo');
+                if (userInfo) userInfo.classList.add('d-none');
+
+                // Clear redirect flag
+                sessionStorage.removeItem('redirecting');
+
+                // Show non-authenticated content
+                updateContentForNonAuthenticatedUser();
             }
-        } else {
-            // Not on index page, clear redirect flag
-            sessionStorage.removeItem('redirecting');
-        }
-
-    } else {
-        console.log('No user authenticated');
-
-        // Hide user info safely
-        const userInfo = document.getElementById('userInfo');
-        if (userInfo) userInfo.classList.add('d-none');
-
-        // Show non-authenticated content
-        updateContentForNonAuthenticatedUser();
-    }
         });
     };
 
@@ -145,23 +141,46 @@ async function checkUserAccess(email) {
 function updateContentForAuthenticatedUser() {
     console.log('Updating content for authenticated user, access status:', userAccessStatus);
 
-    // Hide non-auth content safely
+    // Get all elements
     const nonAuthContent = document.getElementById('nonAuthContent');
-    if (nonAuthContent) nonAuthContent.classList.add('d-none');
-
     const authNoAccessContent = document.getElementById('authNoAccessContent');
     const authWithAccessContent = document.getElementById('authWithAccessContent');
+
+    // Debug log
+    console.log('Elements found:', {
+        nonAuthContent: !!nonAuthContent,
+        authNoAccessContent: !!authNoAccessContent,
+        authWithAccessContent: !!authWithAccessContent
+    });
+
+    // Hide non-auth content
+    if (nonAuthContent) {
+        nonAuthContent.classList.add('d-none');
+        console.log('Hid non-auth content');
+    }
 
     if (userAccessStatus === 'granted') {
         // User has access - show conference button
         console.log('User has access - showing conference access content');
-        if (authNoAccessContent) authNoAccessContent.classList.add('d-none');
-        if (authWithAccessContent) authWithAccessContent.classList.remove('d-none');
+        if (authNoAccessContent) {
+            authNoAccessContent.classList.add('d-none');
+            console.log('Hid no-access content');
+        }
+        if (authWithAccessContent) {
+            authWithAccessContent.classList.remove('d-none');
+            console.log('Showed with-access content');
+        }
     } else {
-        // User needs to purchase or use coupon (including 'error' and null states)
+        // User needs to purchase or use coupon
         console.log('User needs access - showing payment/coupon options');
-        if (authNoAccessContent) authNoAccessContent.classList.remove('d-none');
-        if (authWithAccessContent) authWithAccessContent.classList.add('d-none');
+        if (authNoAccessContent) {
+            authNoAccessContent.classList.remove('d-none');
+            console.log('Showed no-access content (payment/coupon options)');
+        }
+        if (authWithAccessContent) {
+            authWithAccessContent.classList.add('d-none');
+            console.log('Hid with-access content');
+        }
     }
 }
 
