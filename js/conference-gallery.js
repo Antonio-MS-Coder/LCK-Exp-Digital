@@ -425,11 +425,11 @@ function parseVideoUrl(url) {
         // For unlisted videos with hash, include the hash in the player URL
         let embedUrl;
         if (hash) {
-            // Include hash for unlisted videos
-            embedUrl = `https://player.vimeo.com/video/${videoId}?h=${hash}`;
+            // Include hash for unlisted videos + hide author/portrait/title
+            embedUrl = `https://player.vimeo.com/video/${videoId}?h=${hash}&byline=0&portrait=0&title=0`;
         } else {
-            // Regular video without hash
-            embedUrl = `https://player.vimeo.com/video/${videoId}`;
+            // Regular video without hash + hide author/portrait/title
+            embedUrl = `https://player.vimeo.com/video/${videoId}?byline=0&portrait=0&title=0`;
         }
 
         return {
@@ -450,9 +450,9 @@ function parseVideoUrl(url) {
 
         let embedUrl;
         if (hash) {
-            embedUrl = `https://player.vimeo.com/video/${videoId}?h=${hash}`;
+            embedUrl = `https://player.vimeo.com/video/${videoId}?h=${hash}&byline=0&portrait=0&title=0`;
         } else {
-            embedUrl = `https://player.vimeo.com/video/${videoId}`;
+            embedUrl = `https://player.vimeo.com/video/${videoId}?byline=0&portrait=0&title=0`;
         }
 
         return {
