@@ -166,7 +166,7 @@ function extractVimeoData() {
 
         const videoId = videoIdMatch[1];
 
-        // Extract hash parameter if exists
+        // Extract hash parameter if exists - IMPORTANT for private videos
         const hashMatch = iframeUrl.match(/\?h=([a-zA-Z0-9]+)/);
         const hash = hashMatch ? hashMatch[1] : '';
 
@@ -174,8 +174,8 @@ function extractVimeoData() {
         const titleMatch = embedCode.match(/title="([^"]+)"/);
         const title = titleMatch ? titleMatch[1] : '';
 
-        // Fill form fields
-        document.getElementById('conferenceVideoUrl').value = iframeUrl;
+        // Fill form fields - KEEP THE FULL URL WITH HASH
+        document.getElementById('conferenceVideoUrl').value = iframeUrl; // This keeps the hash for private videos
         document.getElementById('conferenceVideoId').value = videoId;
 
         if (title) {

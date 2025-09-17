@@ -254,7 +254,29 @@ function parseVideoUrl(url) {
         };
     }
 
-    // Vimeo
+    // Vimeo - Handle both regular and embed URLs with privacy hash
+    // Check for Vimeo player URL first (from embed)
+    const vimeoPlayerMatch = url.match(/player\.vimeo\.com\/video\/(\d+)(?:\?h=([a-zA-Z0-9]+))?/);
+    if (vimeoPlayerMatch) {
+        const videoId = vimeoPlayerMatch[1];
+        const hash = vimeoPlayerMatch[2];
+        // Keep the original URL if it has a hash (for private videos)
+        if (hash) {
+            return {
+                type: 'vimeo',
+                id: videoId,
+                embedUrl: url // Use the full URL with hash for private videos
+            };
+        } else {
+            return {
+                type: 'vimeo',
+                id: videoId,
+                embedUrl: `https://player.vimeo.com/video/${videoId}?title=0&byline=0&portrait=0`
+            };
+        }
+    }
+
+    // Regular Vimeo URL
     const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
     if (vimeoMatch) {
         return {
