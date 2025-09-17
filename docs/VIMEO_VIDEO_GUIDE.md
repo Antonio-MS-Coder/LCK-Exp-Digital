@@ -1,8 +1,8 @@
-# Guía para Subir Videos de Vimeo - LCK Experience
+# Guía para Videos de Vimeo - LCK Experience
 
-## 🎥 Configuración Recomendada de Privacidad en Vimeo
+## 🎥 Configuración IMPORTANTE en Vimeo
 
-### Opción Recomendada: **"Unlisted"** (No listado)
+### Para Videos "Unlisted" (No listados)
 
 1. **Ve a tu video en Vimeo**
 2. **Click en "Settings" (Configuración)**
@@ -10,12 +10,19 @@
    - ✅ El video NO aparece en búsquedas de Vimeo
    - ✅ Solo personas con el link pueden verlo
    - ✅ Se puede embeder en cualquier sitio
-   - ✅ NO requiere hash especial de privacidad
-   - ✅ Funciona perfectamente con nuestro sistema
+   - ⚠️ **IMPORTANTE**: El video tendrá un hash único en la URL
 
-### Configuración de Embed:
-1. **En "Embed" → "Where can this be embedded?"**
-2. **Selecciona: "Anywhere"**
+4. **En "Embed" → "Where can this be embedded?"**
+   - Selecciona: **"Anywhere"**
+
+### URL de Video Unlisted
+
+Cuando configuras un video como "Unlisted", Vimeo te dará una URL como:
+```
+https://vimeo.com/123456789/abc123def456
+```
+
+**El hash (abc123def456) es OBLIGATORIO** para que el video funcione.
 
 ## 📋 Proceso para Subir Videos al Admin Panel
 
@@ -23,58 +30,64 @@
 1. Sube tu video a Vimeo
 2. Configura privacidad como **"Unlisted"**
 3. Permite embed **"Anywhere"**
-4. Copia el código embed
+4. **COPIA LA URL COMPLETA CON EL HASH**
 
 ### Paso 2: Agregar en Admin Panel
 1. Ve a **Admin Panel → Conferencias**
-2. En la sección amarilla **"Importar desde Vimeo"**
-3. **Pega el código embed** completo
-4. Click en **"Extraer Información Automáticamente"**
+2. En la sección **"Importar Video de Vimeo"**
+3. **Pega la URL completa** (incluye el hash si es unlisted)
+   - Ejemplo: `https://vimeo.com/1119273722/abc123def456`
+4. Click en **"Obtener Información del Video"**
 5. Se llenarán automáticamente:
-   - URL del video
-   - Video ID
-   - Thumbnail
-6. **Completa manualmente**:
-   - Título (si no se extrajo)
-   - Ponente
-   - Descripción
+   - Título
+   - Ponente/Autor
    - Duración
+   - Thumbnail
+6. **Completa cualquier campo faltante**
 7. Click en **"Subir Conferencia"**
 
-## ⚠️ Importante
+## ⚠️ Solución de Problemas
 
-### Si ya tienes videos con "Hide from Vimeo":
-Los videos configurados como "Hide from Vimeo" con hash de privacidad también funcionarán, pero es más complejo. Si es posible, cambia a "Unlisted" para simplicidad.
+### Error 403 - Video no se reproduce:
 
-### URLs de Ejemplo:
+**Causa**: El hash de privacidad no está incluido en la URL
 
-**Unlisted (Recomendado):**
+**Solución**:
+1. Ve a Vimeo y copia la URL completa del video
+2. La URL debe incluir el hash: `https://vimeo.com/VIDEO_ID/HASH`
+3. En el admin panel, actualiza la conferencia con la URL completa
+4. El sistema automáticamente incluirá el hash en el embed
+
+### Video muestra "Sorry, We're having a little trouble":
+
+**Causas posibles**:
+1. El video NO está configurado como "Unlisted"
+2. El embed NO está permitido "Anywhere"
+3. Falta el hash de privacidad en la URL
+
+**Solución**:
+1. Verifica la configuración de privacidad en Vimeo
+2. Asegúrate de copiar la URL completa con hash
+3. Actualiza la conferencia en el admin panel
+
+## 📝 Notas Importantes
+
+- **SIEMPRE** usa la URL completa con hash para videos Unlisted
+- El hash es único para cada video y es obligatorio
+- Sin el hash correcto, el video mostrará error 403
+- Los videos "Private" NO funcionarán, deben ser "Unlisted"
+
+## Ejemplo de URLs
+
+✅ **Correcto (Unlisted con hash):**
 ```
-https://player.vimeo.com/video/123456789
+https://vimeo.com/1119273722/abc123def456
 ```
 
-**Hide from Vimeo (Más complejo):**
+❌ **Incorrecto (sin hash):**
 ```
-https://player.vimeo.com/video/123456789?h=abc123def456
+https://vimeo.com/1119273722
 ```
-
-## 🔧 Solución de Problemas
-
-### Video no se reproduce:
-1. Verifica que el video esté configurado como **"Unlisted"**
-2. Verifica que embed esté permitido **"Anywhere"**
-3. Si el video tiene hash (?h=xxx), asegúrate de copiar la URL completa
-
-### Thumbnail no aparece:
-- El sistema intenta obtener el thumbnail automáticamente
-- Si no funciona, puedes agregar manualmente una URL de imagen
-
-## 📝 Notas
-
-- **"Unlisted"** es la opción más simple y confiable
-- No requiere manejo especial de hashes de privacidad
-- Los usuarios no necesitan cuenta de Vimeo para ver los videos
-- Los videos no aparecerán en búsquedas públicas de Vimeo
 
 ---
 

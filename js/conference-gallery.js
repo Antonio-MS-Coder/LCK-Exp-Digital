@@ -411,23 +411,44 @@ function parseVideoUrl(url) {
     const vimeoStandardMatch = url.match(/vimeo\.com\/(\d+)(?:\/(\w+))?/);
     if (vimeoStandardMatch) {
         const videoId = vimeoStandardMatch[1];
-        // Build player URL - unlisted videos work without hash in player URL
-        const embedUrl = `https://player.vimeo.com/video/${videoId}?badge=0&autopause=0&player_id=0&app_id=58479`;
+        const hash = vimeoStandardMatch[2];
+
+        // For unlisted videos with hash, include the hash in the player URL
+        let embedUrl;
+        if (hash) {
+            // Include hash for unlisted videos
+            embedUrl = `https://player.vimeo.com/video/${videoId}?h=${hash}`;
+        } else {
+            // Regular video without hash
+            embedUrl = `https://player.vimeo.com/video/${videoId}`;
+        }
+
         return {
             type: 'vimeo',
             id: videoId,
-            embedUrl: embedUrl
+            embedUrl: embedUrl,
+            hash: hash || null
         };
     }
 
-    // Legacy: Handle player.vimeo.com URLs
-    const vimeoPlayerMatch = url.match(/player\.vimeo\.com\/video\/(\d+)/);
+    // Legacy: Handle player.vimeo.com URLs (may include hash)
+    const vimeoPlayerMatch = url.match(/player\.vimeo\.com\/video\/(\d+)(?:\?h=([a-zA-Z0-9]+))?/);
     if (vimeoPlayerMatch) {
         const videoId = vimeoPlayerMatch[1];
+        const hash = vimeoPlayerMatch[2];
+
+        let embedUrl;
+        if (hash) {
+            embedUrl = `https://player.vimeo.com/video/${videoId}?h=${hash}`;
+        } else {
+            embedUrl = `https://player.vimeo.com/video/${videoId}`;
+        }
+
         return {
             type: 'vimeo',
             id: videoId,
-            embedUrl: `https://player.vimeo.com/video/${videoId}?badge=0&autopause=0&player_id=0&app_id=58479`
+            embedUrl: embedUrl,
+            hash: hash || null
         };
     }
 

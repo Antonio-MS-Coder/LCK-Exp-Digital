@@ -255,32 +255,48 @@ function parseVideoUrl(url) {
     }
 
     // Vimeo - Handle standard URLs and unlisted URLs with hash
-    // Standard vimeo.com URL (including unlisted with hash)
     const vimeoStandardMatch = url.match(/vimeo\.com\/(\d+)(?:\/(\w+))?/);
     if (vimeoStandardMatch) {
         const videoId = vimeoStandardMatch[1];
         const hash = vimeoStandardMatch[2];
 
-        // Build player URL - for unlisted videos, we don't need the hash in the player URL
-        // Vimeo handles unlisted videos automatically when embedded
-        const embedUrl = `https://player.vimeo.com/video/${videoId}?badge=0&autopause=0&player_id=0&app_id=58479`;
+        // For unlisted videos with hash, include the hash in the player URL
+        let embedUrl;
+        if (hash) {
+            // Include hash for unlisted videos - REQUIRED for them to work
+            embedUrl = `https://player.vimeo.com/video/${videoId}?h=${hash}`;
+        } else {
+            // Regular video without hash
+            embedUrl = `https://player.vimeo.com/video/${videoId}`;
+        }
 
         return {
             type: 'vimeo',
             id: videoId,
             embedUrl: embedUrl,
+            hash: hash || null,
             isUnlisted: !!hash
         };
     }
 
-    // Legacy: Handle player.vimeo.com URLs (shouldn't be stored anymore, but handle for backward compatibility)
-    const vimeoPlayerMatch = url.match(/player\.vimeo\.com\/video\/(\d+)/);
+    // Legacy: Handle player.vimeo.com URLs (may include hash)
+    const vimeoPlayerMatch = url.match(/player\.vimeo\.com\/video\/(\d+)(?:\?h=([a-zA-Z0-9]+))?/);
     if (vimeoPlayerMatch) {
         const videoId = vimeoPlayerMatch[1];
+        const hash = vimeoPlayerMatch[2];
+
+        let embedUrl;
+        if (hash) {
+            embedUrl = `https://player.vimeo.com/video/${videoId}?h=${hash}`;
+        } else {
+            embedUrl = `https://player.vimeo.com/video/${videoId}`;
+        }
+
         return {
             type: 'vimeo',
             id: videoId,
-            embedUrl: `https://player.vimeo.com/video/${videoId}?badge=0&autopause=0&player_id=0&app_id=58479`
+            embedUrl: embedUrl,
+            hash: hash || null
         };
     }
 
