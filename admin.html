@@ -264,6 +264,28 @@
         <div id="conferencesTab" class="tab-content">
             <div class="conference-form">
                 <h3>Subir Nueva Conferencia</h3>
+
+                <!-- Vimeo Embed Quick Input -->
+                <div class="card" style="background: #f8f9fa; margin-bottom: 20px; padding: 15px; border: 2px solid var(--accent-gold);">
+                    <h4 style="color: var(--primary-black); margin-bottom: 10px;">
+                        <i class="fas fa-magic"></i> Importar desde Vimeo (Opción Rápida)
+                    </h4>
+                    <div class="form-group">
+                        <label for="vimeoEmbed">Pega el código embed de Vimeo aquí:</label>
+                        <textarea id="vimeoEmbed" rows="4"
+                                  placeholder='<iframe src="https://player.vimeo.com/video/123456789?h=abcdef..." width="640" height="360" frameborder="0"></iframe>'
+                                  style="width: 100%; padding: 10px; border: 1px solid var(--gray-light);
+                                         border-radius: var(--radius-sm); font-family: monospace; font-size: 12px;"></textarea>
+                        <button type="button" class="btn btn-gold" onclick="extractVimeoData()" style="margin-top: 10px;">
+                            <i class="fas fa-wand-magic-sparkles"></i> Extraer Información Automáticamente
+                        </button>
+                    </div>
+                    <div id="vimeoPreview" style="margin-top: 15px; display: none;">
+                        <p style="color: var(--success);"><i class="fas fa-check-circle"></i> Información extraída correctamente</p>
+                        <img id="vimeoThumbPreview" style="max-width: 200px; border-radius: var(--radius-sm);" />
+                    </div>
+                </div>
+
                 <form id="conferenceUploadForm" onsubmit="uploadConference(event)">
                     <div class="form-group">
                         <label for="conferenceTitle">Título de la Conferencia</label>
@@ -294,16 +316,26 @@
                     <div class="form-group">
                         <label for="conferenceVideoUrl">URL del Video</label>
                         <input type="url" id="conferenceVideoUrl" required
-                               placeholder="https://youtube.com/watch?v=... o URL de Vimeo">
+                               placeholder="https://player.vimeo.com/video/123456789">
                         <small style="color: var(--gray-medium);">
-                            Soporta YouTube, Vimeo, o enlaces directos a videos
+                            URL del iframe de Vimeo (se extrae automáticamente del embed)
                         </small>
                     </div>
 
                     <div class="form-group">
-                        <label for="conferenceThumbnail">URL de Miniatura (opcional)</label>
+                        <label for="conferenceThumbnail">URL de Miniatura</label>
                         <input type="url" id="conferenceThumbnail"
-                               placeholder="https://ejemplo.com/imagen.jpg">
+                               placeholder="https://i.vimeocdn.com/video/...">
+                        <small style="color: var(--gray-medium);">
+                            Se genera automáticamente para videos de Vimeo
+                        </small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="conferenceVideoId">Video ID (Vimeo)</label>
+                        <input type="text" id="conferenceVideoId" readonly
+                               style="background: #f8f9fa;"
+                               placeholder="Se extrae automáticamente">
                     </div>
 
                     <div class="form-group">

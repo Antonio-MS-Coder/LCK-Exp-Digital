@@ -138,6 +138,90 @@ async function loadRecentActivity() {
     }
 }
 
+// Extract Vimeo data from embed code
+function extractVimeoData() {
+    const embedCode = document.getElementById('vimeoEmbed').value.trim();
+
+    if (!embedCode) {
+        alert('Por favor pega el código embed de Vimeo primero');
+        return;
+    }
+
+    try {
+        // Extract video ID and hash from embed code
+        const srcMatch = embedCode.match(/src="([^"]+)"/);
+        if (!srcMatch) {
+            alert('No se pudo encontrar la URL del video en el código embed');
+            return;
+        }
+
+        const iframeUrl = srcMatch[1];
+
+        // Extract video ID from URL
+        const videoIdMatch = iframeUrl.match(/vimeo\.com\/video\/(\d+)/);
+        if (!videoIdMatch) {
+            alert('No se pudo extraer el ID del video de Vimeo');
+            return;
+        }
+
+        const videoId = videoIdMatch[1];
+
+        // Extract hash parameter if exists
+        const hashMatch = iframeUrl.match(/\?h=([a-zA-Z0-9]+)/);
+        const hash = hashMatch ? hashMatch[1] : '';
+
+        // Extract title if present in the embed code
+        const titleMatch = embedCode.match(/title="([^"]+)"/);
+        const title = titleMatch ? titleMatch[1] : '';
+
+        // Fill form fields
+        document.getElementById('conferenceVideoUrl').value = iframeUrl;
+        document.getElementById('conferenceVideoId').value = videoId;
+
+        if (title) {
+            document.getElementById('conferenceTitle').value = title;
+        }
+
+        // Generate thumbnail URLs for Vimeo
+        // Vimeo has multiple thumbnail sizes available
+        const thumbnailUrl = `https://vumbnail.com/${videoId}.jpg`;
+        document.getElementById('conferenceThumbnail').value = thumbnailUrl;
+
+        // Show preview
+        const previewDiv = document.getElementById('vimeoPreview');
+        if (previewDiv) {
+            previewDiv.style.display = 'block';
+            const thumbPreview = document.getElementById('vimeoThumbPreview');
+            if (thumbPreview) {
+                thumbPreview.src = thumbnailUrl;
+                thumbPreview.onerror = function() {
+                    // If vumbnail fails, try alternative
+                    this.src = `https://i.vimeocdn.com/video/${videoId}_640x360.jpg`;
+                };
+            }
+        }
+
+        // Extract dimensions if present
+        const widthMatch = embedCode.match(/width="(\d+)"/);
+        const heightMatch = embedCode.match(/height="(\d+)"/);
+
+        console.log('Vimeo data extracted:', {
+            videoId,
+            hash,
+            title,
+            width: widthMatch ? widthMatch[1] : null,
+            height: heightMatch ? heightMatch[1] : null,
+            thumbnailUrl
+        });
+
+        alert('¡Información extraída correctamente! Completa los campos restantes (Ponente, Descripción, Duración) y sube la conferencia.');
+
+    } catch (error) {
+        console.error('Error extracting Vimeo data:', error);
+        alert('Error al extraer información del código embed');
+    }
+}
+
 // Upload conference
 async function uploadConference(event) {
     event.preventDefault();
@@ -148,6 +232,7 @@ async function uploadConference(event) {
     const duration = parseInt(document.getElementById('conferenceDuration').value);
     const videoUrl = document.getElementById('conferenceVideoUrl').value;
     const thumbnail = document.getElementById('conferenceThumbnail').value;
+    const videoId = document.getElementById('conferenceVideoId')?.value || '';
     const order = parseInt(document.getElementById('conferenceOrder').value) || 0;
     const active = document.getElementById('conferenceActive').checked;
 
@@ -163,9 +248,11 @@ async function uploadConference(event) {
             description: description,
             duration: duration,
             videoUrl: videoUrl,
+            videoId: videoId || null,
             thumbnail: thumbnail || null,
             order: order,
             active: active,
+            platform: videoUrl.includes('vimeo') ? 'vimeo' : videoUrl.includes('youtube') ? 'youtube' : 'other',
             createdAt: firebase.database.ServerValue.TIMESTAMP,
             views: 0
         };
