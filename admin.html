@@ -323,6 +323,17 @@
                     </div>
 
                     <div class="form-group">
+                        <label for="conferenceEmbedCode">Código Embed Completo (para videos privados)</label>
+                        <textarea id="conferenceEmbedCode" rows="3"
+                                  placeholder='<iframe src="https://player.vimeo.com/video/123456789?h=abc123..." width="640" height="360" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>'
+                                  style="width: 100%; padding: 10px; border: 1px solid var(--gray-light);
+                                         border-radius: var(--radius-sm); font-family: monospace; font-size: 11px;"></textarea>
+                        <small style="color: var(--gray-medium);">
+                            Se guarda automáticamente cuando extraes información de Vimeo
+                        </small>
+                    </div>
+
+                    <div class="form-group">
                         <label for="conferenceThumbnail">URL de Miniatura</label>
                         <input type="url" id="conferenceThumbnail"
                                placeholder="https://i.vimeocdn.com/video/...">

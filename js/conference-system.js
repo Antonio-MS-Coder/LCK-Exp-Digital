@@ -323,8 +323,15 @@ function loadConference(index) {
     const videoContainer = document.getElementById('videoPlayer');
     const videoPlaceholder = document.getElementById('videoPlaceholder');
 
-    // Parse video URL
-    const videoInfo = parseVideoUrl(conference.videoUrl);
+    // Check if we have a full embed code stored
+    let videoInfo = null;
+    if (conference.embedCode && conference.embedCode.includes('<iframe')) {
+        // Use the stored embed code directly
+        videoInfo = { type: 'embed', embedCode: conference.embedCode };
+    } else {
+        // Parse video URL normally
+        videoInfo = parseVideoUrl(conference.videoUrl);
+    }
 
     if (videoInfo) {
         // Hide placeholder
@@ -334,7 +341,42 @@ function loadConference(index) {
         // Clear previous content
         videoContainer.innerHTML = '';
 
-        if (videoInfo.type === 'direct') {
+        if (videoInfo.type === 'embed') {
+            // Use the full embed code directly
+            videoContainer.innerHTML = videoInfo.embedCode;
+
+            // Ensure iframe has proper attributes
+            const iframe = videoContainer.querySelector('iframe');
+            if (iframe) {
+                iframe.width = '100%';
+                iframe.height = '100%';
+                iframe.style.borderRadius = '8px';
+            }
+
+            // Track that video was started
+            trackVideoEvent('play', conference);
+
+            // Mark as watched
+            saveUserProgress(conference.id, {
+                watched: true,
+                currentTime: 0,
+                completed: false
+            });
+
+            // Add manual completion button for embedded videos
+            if (!document.getElementById('markCompleteBtn')) {
+                const completeBtn = document.createElement('button');
+                completeBtn.id = 'markCompleteBtn';
+                completeBtn.className = 'btn btn-primary';
+                completeBtn.innerHTML = '<i class="fas fa-check"></i> Marcar como completado';
+                completeBtn.style.marginTop = '15px';
+                completeBtn.onclick = () => {
+                    handleVideoEnded(conference);
+                };
+                videoContainer.parentElement.appendChild(completeBtn);
+            }
+
+        } else if (videoInfo.type === 'direct') {
             // Use HTML5 video player for direct videos
             const video = document.createElement('video');
             video.id = 'conferenceStream';

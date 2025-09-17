@@ -178,6 +178,9 @@ function extractVimeoData() {
         document.getElementById('conferenceVideoUrl').value = iframeUrl; // This keeps the hash for private videos
         document.getElementById('conferenceVideoId').value = videoId;
 
+        // IMPORTANT: Store the complete embed code for private videos
+        document.getElementById('conferenceEmbedCode').value = embedCode;
+
         if (title) {
             document.getElementById('conferenceTitle').value = title;
         }
@@ -233,6 +236,7 @@ async function uploadConference(event) {
     const videoUrl = document.getElementById('conferenceVideoUrl').value;
     const thumbnail = document.getElementById('conferenceThumbnail').value;
     const videoId = document.getElementById('conferenceVideoId')?.value || '';
+    const embedCode = document.getElementById('conferenceEmbedCode')?.value || '';
     const order = parseInt(document.getElementById('conferenceOrder').value) || 0;
     const active = document.getElementById('conferenceActive').checked;
 
@@ -249,6 +253,7 @@ async function uploadConference(event) {
             duration: duration,
             videoUrl: videoUrl,
             videoId: videoId || null,
+            embedCode: embedCode || null, // Store full embed code for private videos
             thumbnail: thumbnail || null,
             order: order,
             active: active,
