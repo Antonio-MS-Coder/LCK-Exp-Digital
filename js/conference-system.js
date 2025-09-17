@@ -244,6 +244,15 @@ async function saveUserProgress(conferenceId, progress) {
 function parseVideoUrl(url) {
     if (!url) return null;
 
+    // Store original URL for player.vimeo.com hash extraction
+    const originalUrl = url;
+
+    // Clean URL - remove tracking parameters like ?share=copy for standard URLs
+    // But keep ?h= parameter for player.vimeo.com URLs
+    if (url.includes('vimeo.com/') && !url.includes('player.vimeo.com')) {
+        url = url.split('?')[0];
+    }
+
     // YouTube
     const youtubeMatch = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&\n?#]+)/);
     if (youtubeMatch) {
@@ -279,11 +288,13 @@ function parseVideoUrl(url) {
         };
     }
 
-    // Legacy: Handle player.vimeo.com URLs (may include hash)
-    const vimeoPlayerMatch = url.match(/player\.vimeo\.com\/video\/(\d+)(?:\?h=([a-zA-Z0-9]+))?/);
+    // Legacy: Handle player.vimeo.com URLs (may include hash after ?h=)
+    const vimeoPlayerMatch = url.match(/player\.vimeo\.com\/video\/(\d+)/);
     if (vimeoPlayerMatch) {
         const videoId = vimeoPlayerMatch[1];
-        const hash = vimeoPlayerMatch[2];
+        // For player URLs, check if there's a hash parameter
+        const hashMatch = originalUrl.match(/[?&]h=([a-zA-Z0-9]+)/);
+        const hash = hashMatch ? hashMatch[1] : null;
 
         let embedUrl;
         if (hash) {

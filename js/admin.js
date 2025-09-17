@@ -158,6 +158,9 @@ async function fetchVimeoInfo() {
         // Clean the URL - accept both vimeo.com and player.vimeo.com formats
         let cleanUrl = vimeoUrl;
 
+        // Remove tracking parameters like ?share=copy
+        cleanUrl = cleanUrl.split('?')[0];
+
         // Convert player.vimeo.com URLs to standard vimeo.com URLs
         if (cleanUrl.includes('player.vimeo.com')) {
             const match = cleanUrl.match(/player\.vimeo\.com\/video\/(\d+)/);
