@@ -138,91 +138,131 @@ async function loadRecentActivity() {
     }
 }
 
-// Extract Vimeo data from embed code
-function extractVimeoData() {
-    const embedCode = document.getElementById('vimeoEmbed').value.trim();
+// Fetch Vimeo info using oEmbed API (best practice)
+async function fetchVimeoInfo() {
+    const vimeoUrl = document.getElementById('vimeoUrl').value.trim();
 
-    if (!embedCode) {
-        alert('Por favor pega el código embed de Vimeo primero');
+    if (!vimeoUrl) {
+        alert('Por favor ingresa la URL del video de Vimeo');
         return;
     }
 
+    // Show loading state
+    const previewDiv = document.getElementById('vimeoPreview');
+    if (previewDiv) {
+        previewDiv.style.display = 'block';
+        previewDiv.innerHTML = '<p style="color: #666;"><i class="fas fa-spinner fa-spin"></i> Obteniendo información del video...</p>';
+    }
+
     try {
-        // Extract video ID and hash from embed code
-        const srcMatch = embedCode.match(/src="([^"]+)"/);
-        if (!srcMatch) {
-            alert('No se pudo encontrar la URL del video en el código embed');
-            return;
-        }
+        // Clean the URL - accept both vimeo.com and player.vimeo.com formats
+        let cleanUrl = vimeoUrl;
 
-        const iframeUrl = srcMatch[1];
-
-        // Extract video ID from URL
-        const videoIdMatch = iframeUrl.match(/vimeo\.com\/video\/(\d+)/);
-        if (!videoIdMatch) {
-            alert('No se pudo extraer el ID del video de Vimeo');
-            return;
-        }
-
-        const videoId = videoIdMatch[1];
-
-        // Extract hash parameter if exists - IMPORTANT for private videos
-        const hashMatch = iframeUrl.match(/\?h=([a-zA-Z0-9]+)/);
-        const hash = hashMatch ? hashMatch[1] : '';
-
-        // Extract title if present in the embed code
-        const titleMatch = embedCode.match(/title="([^"]+)"/);
-        const title = titleMatch ? titleMatch[1] : '';
-
-        // Fill form fields - KEEP THE FULL URL WITH HASH
-        document.getElementById('conferenceVideoUrl').value = iframeUrl; // This keeps the hash for private videos
-        document.getElementById('conferenceVideoId').value = videoId;
-
-        // IMPORTANT: Store the complete embed code for private videos
-        document.getElementById('conferenceEmbedCode').value = embedCode;
-
-        if (title) {
-            document.getElementById('conferenceTitle').value = title;
-        }
-
-        // Generate thumbnail URLs for Vimeo
-        // Vimeo has multiple thumbnail sizes available
-        const thumbnailUrl = `https://vumbnail.com/${videoId}.jpg`;
-        document.getElementById('conferenceThumbnail').value = thumbnailUrl;
-
-        // Show preview
-        const previewDiv = document.getElementById('vimeoPreview');
-        if (previewDiv) {
-            previewDiv.style.display = 'block';
-            const thumbPreview = document.getElementById('vimeoThumbPreview');
-            if (thumbPreview) {
-                thumbPreview.src = thumbnailUrl;
-                thumbPreview.onerror = function() {
-                    // If vumbnail fails, try alternative
-                    this.src = `https://i.vimeocdn.com/video/${videoId}_640x360.jpg`;
-                };
+        // Convert player.vimeo.com URLs to standard vimeo.com URLs
+        if (cleanUrl.includes('player.vimeo.com')) {
+            const match = cleanUrl.match(/player\.vimeo\.com\/video\/(\d+)/);
+            if (match) {
+                cleanUrl = `https://vimeo.com/${match[1]}`;
+                // Preserve hash for unlisted videos
+                const hashMatch = vimeoUrl.match(/\/(\w+)$/);
+                if (hashMatch && hashMatch[1].length > 10) {
+                    cleanUrl += `/${hashMatch[1]}`;
+                }
             }
         }
 
-        // Extract dimensions if present
-        const widthMatch = embedCode.match(/width="(\d+)"/);
-        const heightMatch = embedCode.match(/height="(\d+)"/);
+        // Extract video ID and hash
+        const vimeoMatch = cleanUrl.match(/vimeo\.com\/(\d+)(?:\/(\w+))?/);
+        if (!vimeoMatch) {
+            alert('URL de Vimeo inválida. Usa formato: https://vimeo.com/123456789');
+            return;
+        }
 
-        console.log('Vimeo data extracted:', {
+        const videoId = vimeoMatch[1];
+        const hash = vimeoMatch[2] || '';
+
+        // Use Vimeo oEmbed API
+        const oembedUrl = `https://vimeo.com/api/oembed.json?url=${encodeURIComponent(cleanUrl)}&width=1920`;
+
+        // Fetch video info from Vimeo oEmbed API
+        const response = await fetch(oembedUrl);
+
+        if (!response.ok) {
+            if (response.status === 403) {
+                alert('El video es privado. Configúralo como "Unlisted" en Vimeo para poder usarlo.');
+            } else if (response.status === 404) {
+                alert('Video no encontrado. Verifica que la URL sea correcta y el video exista.');
+            } else {
+                alert('Error al obtener información del video. Verifica la URL.');
+            }
+            previewDiv.style.display = 'none';
+            return;
+        }
+
+        const data = await response.json();
+        console.log('Vimeo oEmbed response:', data);
+
+        // Fill form fields with clean Vimeo URL
+        document.getElementById('conferenceVideoUrl').value = cleanUrl;
+        document.getElementById('conferenceVideoId').value = videoId;
+
+        // Auto-fill title if not already filled
+        if (data.title && !document.getElementById('conferenceTitle').value) {
+            document.getElementById('conferenceTitle').value = data.title;
+        }
+
+        // Auto-fill speaker/author if available
+        if (data.author_name && !document.getElementById('conferenceSpeaker').value) {
+            document.getElementById('conferenceSpeaker').value = data.author_name;
+        }
+
+        // Set thumbnail
+        if (data.thumbnail_url) {
+            document.getElementById('conferenceThumbnail').value = data.thumbnail_url;
+        }
+
+        // Auto-fill duration if available (convert from seconds to minutes)
+        if (data.duration && !document.getElementById('conferenceDuration').value) {
+            document.getElementById('conferenceDuration').value = Math.ceil(data.duration / 60);
+        }
+
+        // Show preview with thumbnail
+        if (previewDiv) {
+            previewDiv.innerHTML = `
+                <p style="color: var(--success);"><i class="fas fa-check-circle"></i> Información obtenida correctamente</p>
+                ${data.thumbnail_url ? `<img id="vimeoThumbPreview" src="${data.thumbnail_url}" style="max-width: 200px; border-radius: var(--radius-sm);" />` : ''}
+                <p style="font-size: 12px; margin-top: 10px;">
+                    <strong>Título:</strong> ${data.title}<br>
+                    <strong>Autor:</strong> ${data.author_name}<br>
+                    <strong>Duración:</strong> ${Math.ceil(data.duration / 60)} minutos
+                </p>
+            `;
+        }
+
+        console.log('Vimeo data processed:', {
             videoId,
             hash,
-            title,
-            width: widthMatch ? widthMatch[1] : null,
-            height: heightMatch ? heightMatch[1] : null,
-            thumbnailUrl
+            title: data.title,
+            author: data.author_name,
+            duration: data.duration,
+            thumbnail: data.thumbnail_url
         });
 
-        alert('¡Información extraída correctamente! Completa los campos restantes (Ponente, Descripción, Duración) y sube la conferencia.');
+        alert('¡Información del video obtenida correctamente! Completa cualquier campo restante y sube la conferencia.');
 
     } catch (error) {
-        console.error('Error extracting Vimeo data:', error);
-        alert('Error al extraer información del código embed');
+        console.error('Error fetching Vimeo info:', error);
+        alert('Error al obtener información del video. Por favor verifica la URL.');
+        if (previewDiv) {
+            previewDiv.style.display = 'none';
+        }
     }
+}
+
+// Keep backward compatibility
+function extractVimeoData() {
+    console.warn('extractVimeoData is deprecated. Use fetchVimeoInfo instead.');
+    fetchVimeoInfo();
 }
 
 // Upload conference

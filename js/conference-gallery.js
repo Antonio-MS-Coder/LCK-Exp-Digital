@@ -407,13 +407,27 @@ function parseVideoUrl(url) {
         };
     }
 
-    // Vimeo
-    const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
-    if (vimeoMatch) {
+    // Vimeo - Handle standard URLs and unlisted URLs with hash
+    const vimeoStandardMatch = url.match(/vimeo\.com\/(\d+)(?:\/(\w+))?/);
+    if (vimeoStandardMatch) {
+        const videoId = vimeoStandardMatch[1];
+        // Build player URL - unlisted videos work without hash in player URL
+        const embedUrl = `https://player.vimeo.com/video/${videoId}?badge=0&autopause=0&player_id=0&app_id=58479`;
         return {
             type: 'vimeo',
-            id: vimeoMatch[1],
-            embedUrl: `https://player.vimeo.com/video/${vimeoMatch[1]}?title=0&byline=0&portrait=0`
+            id: videoId,
+            embedUrl: embedUrl
+        };
+    }
+
+    // Legacy: Handle player.vimeo.com URLs
+    const vimeoPlayerMatch = url.match(/player\.vimeo\.com\/video\/(\d+)/);
+    if (vimeoPlayerMatch) {
+        const videoId = vimeoPlayerMatch[1];
+        return {
+            type: 'vimeo',
+            id: videoId,
+            embedUrl: `https://player.vimeo.com/video/${videoId}?badge=0&autopause=0&player_id=0&app_id=58479`
         };
     }
 

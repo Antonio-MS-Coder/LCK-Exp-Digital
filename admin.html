@@ -265,23 +265,28 @@
             <div class="conference-form">
                 <h3>Subir Nueva Conferencia</h3>
 
-                <!-- Vimeo Embed Quick Input -->
+                <!-- Vimeo URL Quick Input -->
                 <div class="card" style="background: #f8f9fa; margin-bottom: 20px; padding: 15px; border: 2px solid var(--accent-gold);">
                     <h4 style="color: var(--primary-black); margin-bottom: 10px;">
-                        <i class="fas fa-magic"></i> Importar desde Vimeo (Opción Rápida)
+                        <i class="fas fa-video"></i> Importar Video de Vimeo
                     </h4>
+                    <p style="margin: 10px 0; font-size: 14px; color: var(--gray-dark);">
+                        <strong>Configuración recomendada en Vimeo:</strong><br>
+                        1. Privacy: <span style="color: var(--accent-gold);">"Unlisted"</span> (No listado)<br>
+                        2. Embed: <span style="color: var(--accent-gold);">"Anywhere"</span> (En cualquier lugar)
+                    </p>
                     <div class="form-group">
-                        <label for="vimeoEmbed">Pega el código embed de Vimeo aquí:</label>
-                        <textarea id="vimeoEmbed" rows="4"
-                                  placeholder='<iframe src="https://player.vimeo.com/video/123456789?h=abcdef..." width="640" height="360" frameborder="0"></iframe>'
-                                  style="width: 100%; padding: 10px; border: 1px solid var(--gray-light);
-                                         border-radius: var(--radius-sm); font-family: monospace; font-size: 12px;"></textarea>
-                        <button type="button" class="btn btn-gold" onclick="extractVimeoData()" style="margin-top: 10px;">
-                            <i class="fas fa-wand-magic-sparkles"></i> Extraer Información Automáticamente
+                        <label for="vimeoUrl">URL del Video de Vimeo:</label>
+                        <input type="url" id="vimeoUrl"
+                               placeholder="https://vimeo.com/123456789 o https://vimeo.com/123456789/abcdef123456"
+                               style="width: 100%; padding: 10px; border: 1px solid var(--gray-light);
+                                      border-radius: var(--radius-sm); font-size: 14px;">
+                        <button type="button" class="btn btn-gold" onclick="fetchVimeoInfo()" style="margin-top: 10px;">
+                            <i class="fas fa-download"></i> Obtener Información del Video
                         </button>
                     </div>
                     <div id="vimeoPreview" style="margin-top: 15px; display: none;">
-                        <p style="color: var(--success);"><i class="fas fa-check-circle"></i> Información extraída correctamente</p>
+                        <p style="color: var(--success);"><i class="fas fa-check-circle"></i> Información obtenida correctamente</p>
                         <img id="vimeoThumbPreview" style="max-width: 200px; border-radius: var(--radius-sm);" />
                     </div>
                 </div>
@@ -316,20 +321,9 @@
                     <div class="form-group">
                         <label for="conferenceVideoUrl">URL del Video</label>
                         <input type="url" id="conferenceVideoUrl" required
-                               placeholder="https://player.vimeo.com/video/123456789">
+                               placeholder="https://vimeo.com/123456789">
                         <small style="color: var(--gray-medium);">
-                            URL del iframe de Vimeo (se extrae automáticamente del embed)
-                        </small>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="conferenceEmbedCode">Código Embed Completo (para videos privados)</label>
-                        <textarea id="conferenceEmbedCode" rows="3"
-                                  placeholder='<iframe src="https://player.vimeo.com/video/123456789?h=abc123..." width="640" height="360" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>'
-                                  style="width: 100%; padding: 10px; border: 1px solid var(--gray-light);
-                                         border-radius: var(--radius-sm); font-family: monospace; font-size: 11px;"></textarea>
-                        <small style="color: var(--gray-medium);">
-                            Se guarda automáticamente cuando extraes información de Vimeo
+                            URL completa del video de Vimeo (incluir hash si es privado)
                         </small>
                     </div>
 
@@ -338,15 +332,12 @@
                         <input type="url" id="conferenceThumbnail"
                                placeholder="https://i.vimeocdn.com/video/...">
                         <small style="color: var(--gray-medium);">
-                            Se genera automáticamente para videos de Vimeo
+                            Se obtiene automáticamente desde Vimeo
                         </small>
                     </div>
 
-                    <div class="form-group">
-                        <label for="conferenceVideoId">Video ID (Vimeo)</label>
-                        <input type="text" id="conferenceVideoId" readonly
-                               style="background: #f8f9fa;"
-                               placeholder="Se extrae automáticamente">
+                    <div class="form-group" style="display: none;">
+                        <input type="text" id="conferenceVideoId">
                     </div>
 
                     <div class="form-group">

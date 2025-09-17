@@ -254,35 +254,33 @@ function parseVideoUrl(url) {
         };
     }
 
-    // Vimeo - Handle both regular and embed URLs with privacy hash
-    // Check for Vimeo player URL first (from embed)
-    const vimeoPlayerMatch = url.match(/player\.vimeo\.com\/video\/(\d+)(?:\?h=([a-zA-Z0-9]+))?/);
-    if (vimeoPlayerMatch) {
-        const videoId = vimeoPlayerMatch[1];
-        const hash = vimeoPlayerMatch[2];
-        // Keep the original URL if it has a hash (for private videos)
-        if (hash) {
-            return {
-                type: 'vimeo',
-                id: videoId,
-                embedUrl: url // Use the full URL with hash for private videos
-            };
-        } else {
-            return {
-                type: 'vimeo',
-                id: videoId,
-                embedUrl: `https://player.vimeo.com/video/${videoId}?title=0&byline=0&portrait=0`
-            };
-        }
-    }
+    // Vimeo - Handle standard URLs and unlisted URLs with hash
+    // Standard vimeo.com URL (including unlisted with hash)
+    const vimeoStandardMatch = url.match(/vimeo\.com\/(\d+)(?:\/(\w+))?/);
+    if (vimeoStandardMatch) {
+        const videoId = vimeoStandardMatch[1];
+        const hash = vimeoStandardMatch[2];
 
-    // Regular Vimeo URL
-    const vimeoMatch = url.match(/vimeo\.com\/(\d+)/);
-    if (vimeoMatch) {
+        // Build player URL - for unlisted videos, we don't need the hash in the player URL
+        // Vimeo handles unlisted videos automatically when embedded
+        const embedUrl = `https://player.vimeo.com/video/${videoId}?badge=0&autopause=0&player_id=0&app_id=58479`;
+
         return {
             type: 'vimeo',
-            id: vimeoMatch[1],
-            embedUrl: `https://player.vimeo.com/video/${vimeoMatch[1]}?title=0&byline=0&portrait=0`
+            id: videoId,
+            embedUrl: embedUrl,
+            isUnlisted: !!hash
+        };
+    }
+
+    // Legacy: Handle player.vimeo.com URLs (shouldn't be stored anymore, but handle for backward compatibility)
+    const vimeoPlayerMatch = url.match(/player\.vimeo\.com\/video\/(\d+)/);
+    if (vimeoPlayerMatch) {
+        const videoId = vimeoPlayerMatch[1];
+        return {
+            type: 'vimeo',
+            id: videoId,
+            embedUrl: `https://player.vimeo.com/video/${videoId}?badge=0&autopause=0&player_id=0&app_id=58479`
         };
     }
 
@@ -323,15 +321,8 @@ function loadConference(index) {
     const videoContainer = document.getElementById('videoPlayer');
     const videoPlaceholder = document.getElementById('videoPlaceholder');
 
-    // Check if we have a full embed code stored
-    let videoInfo = null;
-    if (conference.embedCode && conference.embedCode.includes('<iframe')) {
-        // Use the stored embed code directly
-        videoInfo = { type: 'embed', embedCode: conference.embedCode };
-    } else {
-        // Parse video URL normally
-        videoInfo = parseVideoUrl(conference.videoUrl);
-    }
+    // Parse video URL - we're using clean URLs now, not embed codes
+    const videoInfo = parseVideoUrl(conference.videoUrl);
 
     if (videoInfo) {
         // Hide placeholder
@@ -341,42 +332,7 @@ function loadConference(index) {
         // Clear previous content
         videoContainer.innerHTML = '';
 
-        if (videoInfo.type === 'embed') {
-            // Use the full embed code directly
-            videoContainer.innerHTML = videoInfo.embedCode;
-
-            // Ensure iframe has proper attributes
-            const iframe = videoContainer.querySelector('iframe');
-            if (iframe) {
-                iframe.width = '100%';
-                iframe.height = '100%';
-                iframe.style.borderRadius = '8px';
-            }
-
-            // Track that video was started
-            trackVideoEvent('play', conference);
-
-            // Mark as watched
-            saveUserProgress(conference.id, {
-                watched: true,
-                currentTime: 0,
-                completed: false
-            });
-
-            // Add manual completion button for embedded videos
-            if (!document.getElementById('markCompleteBtn')) {
-                const completeBtn = document.createElement('button');
-                completeBtn.id = 'markCompleteBtn';
-                completeBtn.className = 'btn btn-primary';
-                completeBtn.innerHTML = '<i class="fas fa-check"></i> Marcar como completado';
-                completeBtn.style.marginTop = '15px';
-                completeBtn.onclick = () => {
-                    handleVideoEnded(conference);
-                };
-                videoContainer.parentElement.appendChild(completeBtn);
-            }
-
-        } else if (videoInfo.type === 'direct') {
+        if (videoInfo.type === 'direct') {
             // Use HTML5 video player for direct videos
             const video = document.createElement('video');
             video.id = 'conferenceStream';
