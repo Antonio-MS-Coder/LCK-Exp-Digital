@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Setup Admin - LCK Experience</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+        .success {
+            color: green;
+            margin-top: 10px;
+        }
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        code {
+            background: #f5f5f5;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Setup Admin Access</h1>
+
+        <div class="info">
+            <p><strong>Este es un setup de emergencia para otorgar acceso de admin.</strong></p>
+            <p>Úsalo solo si no puedes acceder al panel de administración.</p>
+        </div>
+
+        <div id="userInfo" style="display: none;">
+            <p>Usuario actual: <strong id="currentUser"></strong></p>
+        </div>
+
+        <button onclick="signInAndSetupAdmin()">1. Iniciar Sesión con Google</button>
+        <button onclick="makeAdmin()" id="makeAdminBtn" style="display: none;">2. Hacerme Admin</button>
+
+        <div id="message"></div>
+
+        <div class="info" style="margin-top: 30px;">
+            <h3>Instrucciones:</h3>
+            <ol>
+                <li>Primero, inicia sesión con tu cuenta de Google</li>
+                <li>Luego, haz clic en "Hacerme Admin"</li>
+                <li>Esto te agregará a la lista de admins y te dará rol de admin</li>
+                <li>Después podrás acceder al panel en <code>/admin.html</code></li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <script src="js/firebase-config.js"></script>
+
+    <script>
+        const auth = firebase.auth();
+        const database = firebase.database();
+        const provider = new firebase.auth.GoogleAuthProvider();
+
+        // Check current user on load
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                document.getElementById('userInfo').style.display = 'block';
+                document.getElementById('currentUser').textContent = user.email;
+                document.getElementById('makeAdminBtn').style.display = 'inline-block';
+                showMessage(`Conectado como: ${user.email}`, 'success');
+            }
+        });
+
+        async function signInAndSetupAdmin() {
+            try {
+                const result = await auth.signInWithPopup(provider);
+                const user = result.user;
+
+                document.getElementById('userInfo').style.display = 'block';
+                document.getElementById('currentUser').textContent = user.email;
+                document.getElementById('makeAdminBtn').style.display = 'inline-block';
+
+                showMessage(`✅ Sesión iniciada como: ${user.email}`, 'success');
+            } catch (error) {
+                showMessage(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function makeAdmin() {
+            const user = auth.currentUser;
+            if (!user) {
+                showMessage('Por favor, inicia sesión primero', 'error');
+                return;
+            }
+
+            try {
+                showMessage('Configurando acceso de admin...', 'info');
+
+                const email = user.email;
+                const emailKey = email.replace(/\./g, '_');
+
+                // Add to admins node
+                await database.ref(`admins/${emailKey}`).set({
+                    email: email,
+                    name: user.displayName || 'Admin',
+                    addedAt: firebase.database.ServerValue.TIMESTAMP,
+                    addedBy: 'setup-script'
+                });
+
+                // Update user with admin role
+                await database.ref(`users/${emailKey}`).update({
+                    email: email,
+                    name: user.displayName || 'Admin',
+                    role: 'admin',
+                    accessGranted: true,
+                    accessType: 'admin',
+                    photoURL: user.photoURL || null,
+                    uid: user.uid,
+                    setupAt: firebase.database.ServerValue.TIMESTAMP
+                });
+
+                showMessage(`
+                    ✅ ¡Éxito! ${email} ahora es administrador.
+                    <br><br>
+                    Ahora puedes acceder al panel de administración en:
+                    <br>
+                    <a href="/admin.html">/admin.html</a>
+                `, 'success');
+
+            } catch (error) {
+                console.error('Error setting up admin:', error);
+                showMessage(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        function showMessage(msg, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.className = type;
+            messageDiv.innerHTML = msg;
+        }
+    </script>
+</body>
+</html>

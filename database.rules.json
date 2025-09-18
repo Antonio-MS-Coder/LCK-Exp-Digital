@@ -1,6 +1,8 @@
 {
   "rules": {
     "users": {
+      ".read": "auth != null && (root.child('admins').child(auth.token.email.replace('.', '_')).exists() || root.child('users').child(auth.token.email.replace('.', '_')).child('role').val() === 'admin' || root.child('users').child(auth.token.email.replace('.', '_')).child('role').val() === 'super_admin')",
+      ".write": "auth != null && (root.child('admins').child(auth.token.email.replace('.', '_')).exists() || root.child('users').child(auth.token.email.replace('.', '_')).child('role').val() === 'admin' || root.child('users').child(auth.token.email.replace('.', '_')).child('role').val() === 'super_admin')",
       "$email": {
         ".read": true,
         ".write": true,
@@ -8,14 +10,14 @@
           ".validate": "newData.isBoolean()"
         },
         "role": {
-          ".validate": "newData.val() === 'admin' || newData.val() === 'super_admin' || newData.val() === 'user'"
+          ".validate": "newData.val() === 'admin' || newData.val() === 'super_admin' || newData.val() === 'user' || newData.val() === 'moderator' || newData.val() === 'support' || newData.val() === 'viewer'"
         }
       }
     },
     "admins": {
       ".read": true,
       "$email": {
-        ".write": true
+        ".write": "auth != null && (root.child('admins').child(auth.token.email.replace('.', '_')).exists() || root.child('users').child(auth.token.email.replace('.', '_')).child('role').val() === 'super_admin')"
       }
     },
     "conferences": {
@@ -30,7 +32,7 @@
     "coupons": {
       ".read": true,
       "$couponCode": {
-        ".write": true,
+        ".write": "auth != null && (root.child('admins').child(auth.token.email.replace('.', '_')).exists() || root.child('users').child(auth.token.email.replace('.', '_')).child('role').val() === 'admin' || root.child('users').child(auth.token.email.replace('.', '_')).child('role').val() === 'super_admin')",
         "active": {
           ".validate": "newData.isBoolean()"
         },
@@ -44,7 +46,7 @@
     },
     "userProgress": {
       "$userId": {
-        ".read": "auth != null && auth.uid === $userId",
+        ".read": "auth != null && (auth.uid === $userId || root.child('admins').child(auth.token.email.replace('.', '_')).exists() || root.child('users').child(auth.token.email.replace('.', '_')).child('role').val() === 'admin')",
         ".write": "auth != null && auth.uid === $userId",
         "conferences": {
           "$conferenceId": {
@@ -99,6 +101,10 @@
           ".validate": "newData.isString()"
         }
       }
+    },
+    "adminLogs": {
+      ".read": "auth != null && (root.child('admins').child(auth.token.email.replace('.', '_')).exists() || root.child('users').child(auth.token.email.replace('.', '_')).child('role').val() === 'admin')",
+      ".write": "auth != null && (root.child('admins').child(auth.token.email.replace('.', '_')).exists() || root.child('users').child(auth.token.email.replace('.', '_')).child('role').val() === 'admin')"
     }
   }
 }
