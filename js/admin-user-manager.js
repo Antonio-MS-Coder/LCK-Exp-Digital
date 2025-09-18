@@ -1,5 +1,8 @@
 // Enhanced User Management System for LCK Admin Panel
 // Features: Roles, Permissions, Bulk Actions, Activity Tracking
+// Version 2.0 - Full Enhanced Features
+
+console.log('🚀 Loading Enhanced UserManager v2.0 with all features...');
 
 // Ensure Firebase is available
 const database = firebase.database();
