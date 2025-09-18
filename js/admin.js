@@ -62,7 +62,12 @@ function switchTab(tabName, event) {
             loadCoupons();
             break;
         case 'users':
-            loadUsers();
+            // Use enhanced user manager if available
+            if (window.UserManager) {
+                UserManager.loadEnhancedUsers();
+            } else {
+                loadUsers();
+            }
             break;
     }
 }
