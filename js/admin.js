@@ -62,13 +62,11 @@ function switchTab(tabName, event) {
             loadCoupons();
             break;
         case 'users':
-            // Use enhanced user manager
-            if (window.UserManager) {
-                console.log('Loading enhanced user manager...');
-                // Initialize if not already done
-                if (!UserManager.initialized) {
-                    UserManager.initialized = true;
-                }
+            // Use fixed enhanced user manager
+            if (window.EnhancedUserManager) {
+                console.log('Loading fixed enhanced user manager...');
+                EnhancedUserManager.loadUsers();
+            } else if (window.UserManager) {
                 UserManager.loadEnhancedUsers();
                 UserManager.loadUserStats();
             } else if (window.SimpleUserManager) {
