@@ -763,7 +763,8 @@
                     <div class="search-bar">
                         <i class="fas fa-search"></i>
                         <input type="text" id="userSearch" placeholder="Buscar por email, nombre o ID..."
-                               class="search-input">
+                               class="search-input"
+                               onkeyup="SimpleUserManager.searchUsers()">
                     </div>
                 </div>
 
@@ -839,6 +840,6 @@
     <script src="js/admin-auth-improved.js"></script>
     <script src="js/admin-multi-session.js"></script>
     <script src="js/admin.js"></script>
-    <script src="js/admin-user-manager.js"></script>
+    <script src="js/user-manager-simple.js"></script>
 </body>
 </html>

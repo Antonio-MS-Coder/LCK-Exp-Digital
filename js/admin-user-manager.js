@@ -1,6 +1,10 @@
 // Enhanced User Management System for LCK Admin Panel
 // Features: Roles, Permissions, Bulk Actions, Activity Tracking
 
+// Ensure Firebase is available
+const database = firebase.database();
+const auth = firebase.auth();
+
 const UserManager = {
     // User roles and their permissions
     ROLES: {
@@ -33,8 +37,9 @@ const UserManager = {
 
     // Initialize user management
     init() {
+        console.log('UserManager initializing...');
         this.loadEnhancedUsers();
-        this.setupEventListeners();
+        // Event listeners will be set up after content is loaded
         this.loadUserStats();
     },
 
@@ -76,13 +81,19 @@ const UserManager = {
     // Load enhanced user list
     async loadEnhancedUsers() {
         const listDiv = document.getElementById('usersList');
-        if (!listDiv) return;
+        if (!listDiv) {
+            console.log('usersList div not found');
+            return;
+        }
 
         try {
+            console.log('Loading enhanced users...');
             listDiv.innerHTML = '<div class="loading">Cargando usuarios...</div>';
 
             const snapshot = await database.ref('users').once('value');
             const users = snapshot.val() || {};
+
+            console.log('Users loaded:', Object.keys(users).length, 'users found');
 
             if (Object.keys(users).length === 0) {
                 listDiv.innerHTML = '<p class="text-muted">No hay usuarios registrados</p>';
@@ -235,17 +246,19 @@ const UserManager = {
 
             listDiv.innerHTML = html;
 
-            // Re-setup event listeners for new elements
-            this.setupEventListeners();
+            // Setup event listeners after content is loaded
+            setTimeout(() => {
+                this.setupEventListeners();
 
-            // Setup checkbox listeners
-            document.querySelectorAll('.user-checkbox').forEach(cb => {
-                cb.addEventListener('change', () => this.updateBulkActions());
-            });
+                // Setup checkbox listeners
+                document.querySelectorAll('.user-checkbox').forEach(cb => {
+                    cb.addEventListener('change', () => this.updateBulkActions());
+                });
+            }, 100);
 
         } catch (error) {
             console.error('Error loading enhanced users:', error);
-            listDiv.innerHTML = '<p class="error">Error al cargar usuarios</p>';
+            listDiv.innerHTML = `<p class="error">Error al cargar usuarios: ${error.message}</p>`;
         }
     },
 
@@ -668,12 +681,7 @@ const UserManager = {
     }
 };
 
-// Initialize when DOM is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => UserManager.init());
-} else {
-    UserManager.init();
-}
-
 // Export for global access
 window.UserManager = UserManager;
+
+// Don't auto-initialize - will be called from admin.js when users tab is activated
