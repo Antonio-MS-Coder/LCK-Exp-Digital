@@ -685,3 +685,4 @@ const UserManager = {
 window.UserManager = UserManager;
 
 // Don't auto-initialize - will be called from admin.js when users tab is activated
+// The init() function is not needed since we call loadEnhancedUsers directly
