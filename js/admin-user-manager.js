@@ -248,12 +248,16 @@ const UserManager = {
 
             // Setup event listeners after content is loaded
             setTimeout(() => {
+                console.log('Setting up event listeners...');
                 this.setupEventListeners();
 
                 // Setup checkbox listeners
                 document.querySelectorAll('.user-checkbox').forEach(cb => {
                     cb.addEventListener('change', () => this.updateBulkActions());
                 });
+
+                // Make sure bulk actions are properly initialized
+                this.updateBulkActions();
             }, 100);
 
         } catch (error) {

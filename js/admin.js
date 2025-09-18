@@ -64,6 +64,11 @@ function switchTab(tabName, event) {
         case 'users':
             // Use enhanced user manager
             if (window.UserManager) {
+                console.log('Loading enhanced user manager...');
+                // Initialize if not already done
+                if (!UserManager.initialized) {
+                    UserManager.initialized = true;
+                }
                 UserManager.loadEnhancedUsers();
                 UserManager.loadUserStats();
             } else if (window.SimpleUserManager) {
