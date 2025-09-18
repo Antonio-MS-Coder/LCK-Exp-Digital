@@ -28,55 +28,112 @@ window.EnhancedUserManager = {
                 email: user.email || key.replace(/_/g, '.')
             }));
 
+            // Add CSS animations and styles
+            if (!document.getElementById('enhancedStyles')) {
+                const style = document.createElement('style');
+                style.id = 'enhancedStyles';
+                style.innerHTML = `
+                    @keyframes slideDown {
+                        from { opacity: 0; transform: translateY(-10px); }
+                        to { opacity: 1; transform: translateY(0); }
+                    }
+                    @keyframes pulse {
+                        0%, 100% { transform: scale(1); }
+                        50% { transform: scale(1.05); }
+                    }
+                    .user-row:hover {
+                        transform: translateX(4px);
+                        box-shadow: 0 4px 12px rgba(212, 175, 55, 0.08);
+                    }
+                    select:hover, button:hover {
+                        animation: pulse 0.3s ease;
+                    }
+                    #filterRole:hover, #filterAccess:hover {
+                        border-color: #d4af37 !important;
+                        box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1) !important;
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+
             // Build enhanced table
             let html = `
                 <!-- Filters and Actions -->
                 <div style="margin-bottom: 20px;">
-                    <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                        <select id="filterRole" onchange="EnhancedUserManager.filterUsers()" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                            <option value="">Todos los roles</option>
-                            <option value="admin">Admin</option>
-                            <option value="user">Usuario</option>
+                    <div style="display: flex; gap: 12px; margin-bottom: 15px; flex-wrap: wrap;">
+                        <select id="filterRole" onchange="EnhancedUserManager.filterUsers()"
+                                style="padding: 10px 16px; border: 2px solid #e0e0e0; border-radius: 8px;
+                                       background: white; font-size: 14px; font-weight: 500; cursor: pointer;
+                                       transition: all 0.3s ease; min-width: 150px;">
+                            <option value="">🎭 Todos los roles</option>
+                            <option value="admin">👑 Admin</option>
+                            <option value="moderator">🛡️ Moderador</option>
+                            <option value="support">💬 Soporte</option>
+                            <option value="viewer">👀 Visor</option>
+                            <option value="user">👤 Usuario</option>
                         </select>
-                        <select id="filterAccess" onchange="EnhancedUserManager.filterUsers()" style="padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
-                            <option value="">Todos los estados</option>
-                            <option value="true">Con acceso</option>
-                            <option value="false">Sin acceso</option>
+                        <select id="filterAccess" onchange="EnhancedUserManager.filterUsers()"
+                                style="padding: 10px 16px; border: 2px solid #e0e0e0; border-radius: 8px;
+                                       background: white; font-size: 14px; font-weight: 500; cursor: pointer;
+                                       transition: all 0.3s ease; min-width: 150px;">
+                            <option value="">📊 Todos los estados</option>
+                            <option value="true">✅ Con acceso</option>
+                            <option value="false">🚫 Sin acceso</option>
                         </select>
-                        <button onclick="EnhancedUserManager.exportCSV()" style="padding: 8px 16px; background: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                        <button onclick="EnhancedUserManager.exportCSV()"
+                                style="padding: 10px 20px; background: linear-gradient(135deg, #d4af37, #f4e4bc);
+                                       color: #1a1a1a; border: none; border-radius: 8px; cursor: pointer;
+                                       font-weight: 600; font-size: 14px; transition: all 0.3s ease;
+                                       box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);">
                             📥 Exportar CSV
                         </button>
                     </div>
 
                     <!-- Bulk Actions Bar -->
-                    <div id="bulkActions" style="display: none; padding: 10px; background: #f8f9fa; border-radius: 4px; margin-bottom: 10px;">
-                        <span id="selectedCount" style="font-weight: bold; margin-right: 15px;">0 seleccionados</span>
-                        <button onclick="EnhancedUserManager.bulkGrantAccess()" style="padding: 5px 10px; background: #28a745; color: white; border: none; border-radius: 3px; margin: 0 5px; cursor: pointer;">
+                    <div id="bulkActions" style="display: none; padding: 16px; background: linear-gradient(135deg, #fff9e6, #fff);
+                                                   border: 2px solid #d4af37; border-radius: 12px; margin-bottom: 16px;
+                                                   box-shadow: 0 4px 12px rgba(212, 175, 55, 0.15); animation: slideDown 0.3s ease;">
+                        <span id="selectedCount" style="font-weight: 600; margin-right: 20px; color: #1a1a1a; font-size: 15px;">0 seleccionados</span>
+                        <button onclick="EnhancedUserManager.bulkGrantAccess()"
+                                style="padding: 8px 16px; background: linear-gradient(135deg, #10b981, #059669);
+                                       color: white; border: none; border-radius: 6px; margin: 0 6px; cursor: pointer;
+                                       font-weight: 500; font-size: 14px; transition: all 0.3s ease;
+                                       box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);">
                             ✅ Otorgar Acceso
                         </button>
-                        <button onclick="EnhancedUserManager.bulkRevokeAccess()" style="padding: 5px 10px; background: #ffc107; color: #333; border: none; border-radius: 3px; margin: 0 5px; cursor: pointer;">
+                        <button onclick="EnhancedUserManager.bulkRevokeAccess()"
+                                style="padding: 8px 16px; background: linear-gradient(135deg, #f59e0b, #d97706);
+                                       color: white; border: none; border-radius: 6px; margin: 0 6px; cursor: pointer;
+                                       font-weight: 500; font-size: 14px; transition: all 0.3s ease;
+                                       box-shadow: 0 2px 6px rgba(245, 158, 11, 0.3);">
                             ⛔ Revocar Acceso
                         </button>
-                        <button onclick="EnhancedUserManager.bulkDelete()" style="padding: 5px 10px; background: #dc3545; color: white; border: none; border-radius: 3px; margin: 0 5px; cursor: pointer;">
+                        <button onclick="EnhancedUserManager.bulkDelete()"
+                                style="padding: 8px 16px; background: linear-gradient(135deg, #ef4444, #dc2626);
+                                       color: white; border: none; border-radius: 6px; margin: 0 6px; cursor: pointer;
+                                       font-weight: 500; font-size: 14px; transition: all 0.3s ease;
+                                       box-shadow: 0 2px 6px rgba(239, 68, 68, 0.3);">
                             🗑️ Eliminar
                         </button>
                     </div>
                 </div>
 
                 <!-- Enhanced Table -->
-                <table style="width: 100%; border-collapse: collapse; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <table style="width: 100%; border-collapse: separate; border-spacing: 0; background: white;
+                              border-radius: 12px; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.08);">
                     <thead>
-                        <tr style="background: #2c3e50; color: white;">
-                            <th style="padding: 12px; text-align: center; width: 50px;">
-                                <input type="checkbox" id="selectAll" onchange="EnhancedUserManager.selectAll(this)">
+                        <tr style="background: linear-gradient(135deg, #1a1a1a, #2d2d2d); color: white;">
+                            <th style="padding: 16px 12px; text-align: center; width: 50px; font-weight: 600; font-size: 14px;">
+                                <input type="checkbox" id="selectAll" onchange="EnhancedUserManager.selectAll(this)"
+                                       style="width: 18px; height: 18px; cursor: pointer;">
                             </th>
-                            <th style="padding: 12px; text-align: left;">Usuario</th>
-                            <th style="padding: 12px; text-align: left;">Rol</th>
-                            <th style="padding: 12px; text-align: center;">Acceso</th>
-                            <th style="padding: 12px; text-align: left;">Tipo Acceso</th>
-                            <th style="padding: 12px; text-align: left;">Registro</th>
-                            <th style="padding: 12px; text-align: left;">Última Actividad</th>
-                            <th style="padding: 12px; text-align: center;">Acciones</th>
+                            <th style="padding: 16px; text-align: left; font-weight: 600; font-size: 14px; letter-spacing: 0.5px;">USUARIO</th>
+                            <th style="padding: 16px; text-align: left; font-weight: 600; font-size: 14px; letter-spacing: 0.5px;">ROL</th>
+                            <th style="padding: 16px; text-align: center; font-weight: 600; font-size: 14px; letter-spacing: 0.5px;">ACCESO</th>
+                            <th style="padding: 16px; text-align: left; font-weight: 600; font-size: 14px; letter-spacing: 0.5px;">TIPO ACCESO</th>
+                            <th style="padding: 16px; text-align: left; font-weight: 600; font-size: 14px; letter-spacing: 0.5px;">REGISTRO</th>
+                            <th style="padding: 16px; text-align: left; font-weight: 600; font-size: 14px; letter-spacing: 0.5px;">ACTIVIDAD</th>
+                            <th style="padding: 16px; text-align: center; font-weight: 600; font-size: 14px; letter-spacing: 0.5px;">ACCIONES</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -88,85 +145,112 @@ window.EnhancedUserManager = {
                 const createdAt = user.createdAt ? new Date(user.createdAt).toLocaleDateString('es-MX') : 'Desconocido';
                 const lastActivity = user.lastActivity ? new Date(user.lastActivity).toLocaleDateString('es-MX') : 'Nunca';
 
-                // Access type badge
+                // Access type badge with improved colors
                 let accessBadge = '';
                 if (user.hasPaid) {
-                    accessBadge = '<span style="background: #28a745; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px;">Pagó</span>';
+                    accessBadge = '<span style="background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2);">PAGÓ 💵</span>';
                 } else if (user.accessType === 'coupon') {
-                    accessBadge = '<span style="background: #17a2b8; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px;">Cupón</span>';
+                    accessBadge = '<span style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; box-shadow: 0 2px 4px rgba(139, 92, 246, 0.2);">CUPÓN 🎟️</span>';
                 } else if (user.accessType === 'admin-granted') {
-                    accessBadge = '<span style="background: #ffc107; color: #333; padding: 2px 8px; border-radius: 3px; font-size: 12px;">Admin</span>';
+                    accessBadge = '<span style="background: linear-gradient(135deg, #d4af37, #b8941f); color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; box-shadow: 0 2px 4px rgba(212, 175, 55, 0.2);">ADMIN 👑</span>';
                 } else {
-                    accessBadge = '<span style="background: #6c757d; color: white; padding: 2px 8px; border-radius: 3px; font-size: 12px;">Sin acceso</span>';
+                    accessBadge = '<span style="background: linear-gradient(135deg, #9ca3af, #6b7280); color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; letter-spacing: 0.5px;">SIN ACCESO</span>';
                 }
 
-                // Role badge color
+                // Role badge colors with better contrast
                 const roleColors = {
-                    'admin': '#dc3545',
-                    'moderator': '#ffc107',
-                    'support': '#17a2b8',
-                    'viewer': '#6c757d',
-                    'user': '#28a745'
+                    'admin': 'linear-gradient(135deg, #dc2626, #b91c1c)',
+                    'moderator': 'linear-gradient(135deg, #f59e0b, #d97706)',
+                    'support': 'linear-gradient(135deg, #0ea5e9, #0284c7)',
+                    'viewer': 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+                    'user': 'linear-gradient(135deg, #10b981, #059669)'
                 };
 
                 html += `
-                    <tr class="user-row" data-user-id="${user.id}" data-role="${role}" data-access="${hasAccess}" style="border-bottom: 1px solid #dee2e6;">
-                        <td style="padding: 12px; text-align: center;">
-                            <input type="checkbox" class="user-checkbox" value="${user.id}" onchange="EnhancedUserManager.updateSelection()">
+                    <tr class="user-row" data-user-id="${user.id}" data-role="${role}" data-access="${hasAccess}"
+                        style="border-bottom: 1px solid #f3f4f6; transition: all 0.2s ease;"
+                        onmouseover="this.style.background='#fafafa'" onmouseout="this.style.background='white'">
+                        <td style="padding: 16px 12px; text-align: center;">
+                            <input type="checkbox" class="user-checkbox" value="${user.id}" onchange="EnhancedUserManager.updateSelection()"
+                                   style="width: 18px; height: 18px; cursor: pointer;">
                         </td>
-                        <td style="padding: 12px;">
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <div style="width: 35px; height: 35px; border-radius: 50%; background: #d4af37; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold;">
+                        <td style="padding: 16px;">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div style="width: 42px; height: 42px; border-radius: 50%;
+                                           background: linear-gradient(135deg, #d4af37, #f4e4bc);
+                                           color: #1a1a1a; display: flex; align-items: center; justify-content: center;
+                                           font-weight: 700; font-size: 16px; box-shadow: 0 2px 8px rgba(212, 175, 55, 0.2);">
                                     ${(user.name || user.email || '?')[0].toUpperCase()}
                                 </div>
                                 <div>
-                                    <div style="font-weight: 600;">${user.name || 'Sin nombre'}</div>
-                                    <div style="font-size: 12px; color: #6c757d;">${user.email}</div>
+                                    <div style="font-weight: 600; color: #1a1a1a; font-size: 14px;">${user.name || 'Sin nombre'}</div>
+                                    <div style="font-size: 12px; color: #6b7280; margin-top: 2px;">${user.email}</div>
                                 </div>
                             </div>
                         </td>
-                        <td style="padding: 12px;">
+                        <td style="padding: 16px;">
                             <select onchange="EnhancedUserManager.changeRole('${user.id}', this.value)"
-                                    style="padding: 4px 8px; border: 1px solid #ddd; border-radius: 3px; background: ${roleColors[role]}; color: white;">
-                                <option value="user" ${role === 'user' ? 'selected' : ''}>Usuario</option>
-                                <option value="admin" ${role === 'admin' ? 'selected' : ''}>Admin</option>
-                                <option value="moderator" ${role === 'moderator' ? 'selected' : ''}>Moderador</option>
-                                <option value="support" ${role === 'support' ? 'selected' : ''}>Soporte</option>
-                                <option value="viewer" ${role === 'viewer' ? 'selected' : ''}>Visor</option>
+                                    style="padding: 6px 12px; border: none; border-radius: 20px;
+                                           background: ${roleColors[role]}; color: white;
+                                           font-weight: 600; font-size: 12px; cursor: pointer;
+                                           box-shadow: 0 2px 6px rgba(0,0,0,0.1); transition: all 0.3s ease;">
+                                <option value="user" ${role === 'user' ? 'selected' : ''}>👤 Usuario</option>
+                                <option value="admin" ${role === 'admin' ? 'selected' : ''}>👑 Admin</option>
+                                <option value="moderator" ${role === 'moderator' ? 'selected' : ''}>🛡️ Moderador</option>
+                                <option value="support" ${role === 'support' ? 'selected' : ''}>💬 Soporte</option>
+                                <option value="viewer" ${role === 'viewer' ? 'selected' : ''}>👀 Visor</option>
                             </select>
                         </td>
-                        <td style="padding: 12px; text-align: center;">
-                            <label class="switch-container" style="position: relative; display: inline-block; width: 50px; height: 24px;">
+                        <td style="padding: 16px; text-align: center;">
+                            <label class="switch-container" style="position: relative; display: inline-block; width: 52px; height: 28px;">
                                 <input type="checkbox" ${hasAccess ? 'checked' : ''}
                                        onchange="EnhancedUserManager.toggleAccess('${user.id}', this.checked)"
                                        style="opacity: 0; width: 0; height: 0;">
                                 <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
-                                           background-color: ${hasAccess ? '#28a745' : '#ccc'};
-                                           transition: .4s; border-radius: 24px;">
-                                    <span style="position: absolute; content: ''; height: 18px; width: 18px;
-                                               left: ${hasAccess ? '28px' : '3px'}; bottom: 3px;
-                                               background-color: white; transition: .4s; border-radius: 50%;"></span>
+                                           background: ${hasAccess ? 'linear-gradient(135deg, #d4af37, #f4e4bc)' : 'linear-gradient(135deg, #e5e7eb, #d1d5db)'};
+                                           transition: .4s; border-radius: 28px;
+                                           box-shadow: ${hasAccess ? 'inset 0 2px 4px rgba(212, 175, 55, 0.3)' : 'inset 0 2px 4px rgba(0,0,0,0.1)'};
+                                           border: 1px solid ${hasAccess ? '#d4af37' : '#e5e7eb'};">
+                                    <span style="position: absolute; content: ''; height: 22px; width: 22px;
+                                               left: ${hasAccess ? '28px' : '3px'}; bottom: 2px;
+                                               background: white; transition: .4s; border-radius: 50%;
+                                               box-shadow: 0 2px 6px rgba(0,0,0,0.15);"></span>
                                 </span>
                             </label>
                         </td>
                         <td style="padding: 12px;">
                             ${accessBadge}
                         </td>
-                        <td style="padding: 12px; font-size: 14px;">${createdAt}</td>
-                        <td style="padding: 12px; font-size: 14px;">${lastActivity}</td>
-                        <td style="padding: 12px; text-align: center;">
+                        <td style="padding: 16px; font-size: 13px; color: #4b5563;">${createdAt}</td>
+                        <td style="padding: 16px; font-size: 13px; color: #4b5563;">${lastActivity}</td>
+                        <td style="padding: 16px; text-align: center;">
                             <button onclick="EnhancedUserManager.viewDetails('${user.id}')"
-                                    style="padding: 4px 8px; margin: 2px; background: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer;"
+                                    style="padding: 8px; margin: 0 3px; background: linear-gradient(135deg, #3b82f6, #2563eb);
+                                           color: white; border: none; border-radius: 8px; cursor: pointer;
+                                           font-size: 14px; transition: all 0.3s ease;
+                                           box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);"
+                                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(59, 130, 246, 0.3)'"
+                                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(59, 130, 246, 0.2)'"
                                     title="Ver detalles">
                                 👁️
                             </button>
                             <button onclick="EnhancedUserManager.sendEmail('${user.email}')"
-                                    style="padding: 4px 8px; margin: 2px; background: #17a2b8; color: white; border: none; border-radius: 3px; cursor: pointer;"
+                                    style="padding: 8px; margin: 0 3px; background: linear-gradient(135deg, #06b6d4, #0891b2);
+                                           color: white; border: none; border-radius: 8px; cursor: pointer;
+                                           font-size: 14px; transition: all 0.3s ease;
+                                           box-shadow: 0 2px 4px rgba(6, 182, 212, 0.2);"
+                                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(6, 182, 212, 0.3)'"
+                                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(6, 182, 212, 0.2)'"
                                     title="Enviar email">
                                 ✉️
                             </button>
                             <button onclick="EnhancedUserManager.deleteUser('${user.id}')"
-                                    style="padding: 4px 8px; margin: 2px; background: #dc3545; color: white; border: none; border-radius: 3px; cursor: pointer;"
+                                    style="padding: 8px; margin: 0 3px; background: linear-gradient(135deg, #ef4444, #dc2626);
+                                           color: white; border: none; border-radius: 8px; cursor: pointer;
+                                           font-size: 14px; transition: all 0.3s ease;
+                                           box-shadow: 0 2px 4px rgba(239, 68, 68, 0.2);"
+                                    onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 8px rgba(239, 68, 68, 0.3)'"
+                                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(239, 68, 68, 0.2)'"
                                     title="Eliminar">
                                 🗑️
                             </button>
@@ -180,12 +264,29 @@ window.EnhancedUserManager = {
                 </table>
 
                 <!-- Stats -->
-                <div style="margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 4px; display: flex; gap: 20px;">
-                    <div><strong>Total:</strong> ${userArray.length}</div>
-                    <div><strong>Con acceso:</strong> ${userArray.filter(u => u.accessGranted).length}</div>
-                    <div><strong>Pagaron:</strong> ${userArray.filter(u => u.hasPaid).length}</div>
-                    <div><strong>Con cupón:</strong> ${userArray.filter(u => u.accessType === 'coupon').length}</div>
-                    <div><strong>Admins:</strong> ${userArray.filter(u => u.role === 'admin').length}</div>
+                <div style="margin-top: 24px; padding: 20px; background: linear-gradient(135deg, #1a1a1a, #2d2d2d);
+                           border-radius: 12px; display: flex; gap: 32px; flex-wrap: wrap;
+                           box-shadow: 0 4px 16px rgba(0,0,0,0.1);">
+                    <div style="text-align: center;">
+                        <div style="font-size: 28px; font-weight: 700; color: #d4af37; margin-bottom: 4px;">${userArray.length}</div>
+                        <div style="font-size: 12px; color: #9ca3af; text-transform: uppercase; letter-spacing: 1px;">Total</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 28px; font-weight: 700; color: #10b981; margin-bottom: 4px;">${userArray.filter(u => u.accessGranted).length}</div>
+                        <div style="font-size: 12px; color: #9ca3af; text-transform: uppercase; letter-spacing: 1px;">Con Acceso</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 28px; font-weight: 700; color: #3b82f6; margin-bottom: 4px;">${userArray.filter(u => u.hasPaid).length}</div>
+                        <div style="font-size: 12px; color: #9ca3af; text-transform: uppercase; letter-spacing: 1px;">Pagaron</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 28px; font-weight: 700; color: #8b5cf6; margin-bottom: 4px;">${userArray.filter(u => u.accessType === 'coupon').length}</div>
+                        <div style="font-size: 12px; color: #9ca3af; text-transform: uppercase; letter-spacing: 1px;">Cupón</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 28px; font-weight: 700; color: #ef4444; margin-bottom: 4px;">${userArray.filter(u => u.role === 'admin').length}</div>
+                        <div style="font-size: 12px; color: #9ca3af; text-transform: uppercase; letter-spacing: 1px;">Admins</div>
+                    </div>
                 </div>
             `;
 
@@ -246,14 +347,16 @@ window.EnhancedUserManager = {
 
             await database.ref(`users/${userId}`).update(updates);
 
-            // Update the visual toggle
+            // Update the visual toggle with golden color
             const row = document.querySelector(`tr[data-user-id="${userId}"]`);
             if (row) {
                 row.dataset.access = grant;
                 const toggle = row.querySelector('input[type="checkbox"]');
-                const slider = row.querySelector('span[style*="background-color"]');
+                const slider = row.querySelector('span[style*="background"]');
                 if (slider) {
-                    slider.style.backgroundColor = grant ? '#28a745' : '#ccc';
+                    slider.style.background = grant ? 'linear-gradient(135deg, #d4af37, #f4e4bc)' : 'linear-gradient(135deg, #e5e7eb, #d1d5db)';
+                    slider.style.boxShadow = grant ? 'inset 0 2px 4px rgba(212, 175, 55, 0.3)' : 'inset 0 2px 4px rgba(0,0,0,0.1)';
+                    slider.style.border = `1px solid ${grant ? '#d4af37' : '#e5e7eb'}`;
                     const knob = slider.querySelector('span');
                     if (knob) {
                         knob.style.left = grant ? '28px' : '3px';
